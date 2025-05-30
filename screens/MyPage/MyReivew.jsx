@@ -40,7 +40,7 @@ const dummyPosts = [
     ],
   },
 ];
-const ChatMain = () => {
+const MyReview = () => {
   const [post, setPost] = useState([]);
 
   useEffect(() => {
@@ -109,10 +109,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   avatar: {
-    width: 50,
-    height: 50,
-
-    marginRight: 15,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
   },
   headerText: {
     justifyContent: 'center',
@@ -130,15 +130,15 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   reviewImage: {
-    width: 150,
-    height: 150,
-
+    width: 100,
+    height: 100,
+    borderRadius: 8,
     marginRight: 6,
   },
   content: {
-    fontSize: 15,
+    fontSize: 13,
     color: '#333',
   },
 });
 
-export default ChatMain;
+export default MyReview;

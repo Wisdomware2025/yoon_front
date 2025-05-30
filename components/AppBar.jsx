@@ -1,11 +1,13 @@
 import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import App from '../App';
 
 const AppBar = () => {
   const navigation = useNavigation();
   const handleLanguagePress = () => {
     navigation.navigate('Language');
+  };
+  const handleAlarmPress = () => {
+    navigation.navigate('Alarm');
   };
   return (
     <View style={styles.appBar}>
@@ -17,11 +19,12 @@ const AppBar = () => {
             style={styles.TitleImage}
           />
         </TouchableOpacity>
-
-        <Image
-          source={require('../assets/icons/alarm.png')}
-          style={styles.TitleImage}
-        />
+        <TouchableOpacity onPress={handleAlarmPress}>
+          <Image
+            source={require('../assets/icons/alarm.png')}
+            style={styles.TitleImage}
+          />
+        </TouchableOpacity>
       </View>
     </View>
   );

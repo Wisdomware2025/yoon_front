@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,54 +8,145 @@ import {
   TextInput,
   ScrollView,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+
 import AppBar from '../../components/AppBar';
 import PostCard from '../../components/PostCard';
+import WriteButton from '../../components/WriteButton';
+import TabContainer from '../../components/TabContainer';
+import SearchBar from '../../components/SearchBar';
+import axios from 'axios';
+
+const dummyFarmerPosts = [
+  {
+    boardId: 1,
+    title: '감자 캐실 분 도와드립니다!',
+    authorName: '김나혜',
+    createdAt: '2025-05-20T12:34:56',
+    viewCnt: 120,
+    likesCnt: 34,
+    comments: 3,
+    imgUrl: require('../../assets/images/ranking1.png'),
+  },
+  {
+    boardId: 2,
+    title: '고구마 캐실 분 도와드립니다!',
+    authorName: '이현석',
+    createdAt: '2025-05-20T12:50:21',
+    viewCnt: 13,
+    likesCnt: 30,
+    comments: 5,
+    imgUrl: require('../../assets/images/ranking2.png'),
+  },
+  {
+    boardId: 3,
+    title: '옥수수 캐실 분 도와드립니다!',
+    authorName: '최윤정정',
+    createdAt: '2025-05-19T12:22:30',
+    viewCnt: 19,
+    likesCnt: 100,
+    comments: 8,
+    imgUrl: require('../../assets/images/ranking3.png'),
+  },
+];
+const dummyWorkerPosts = [
+  {
+    boardId: 1,
+    title: '감자 캐실 분 구해요!',
+    authorName: '김나혜',
+    createdAt: '2025-05-20T12:34:56',
+    viewCnt: 120,
+    likesCnt: 34,
+    comments: 3,
+    imgUrl: require('../../assets/images/ranking1.png'),
+  },
+  {
+    boardId: 2,
+    title: '고구마 캐실 분 구해요!',
+    authorName: '이현석',
+    createdAt: '2025-05-20T12:50:21',
+    viewCnt: 13,
+    likesCnt: 30,
+    comments: 5,
+    imgUrl: require('../../assets/images/ranking2.png'),
+  },
+  {
+    boardId: 3,
+    title: '옥수수 캐실 분 구해요!',
+    authorName: '최윤정정',
+    createdAt: '2025-05-19T12:22:30',
+    viewCnt: 19,
+    likesCnt: 100,
+    comments: 8,
+    imgUrl: require('../../assets/images/ranking3.png'),
+  },
+];
+
 const HomeMain = () => {
+  const [posts, setPosts] = useState([]);
+
   const [selectedTab, setSelectedTab] = useState('농부');
   const [selectedFilter, setSelectedFilter] = useState('최신순');
   const rankingImages = [
-    require('../../assets/img/ranking1.png'),
-    require('../../assets/img/ranking2.png'),
-    require('../../assets/img/ranking3.png'),
+    require('../../assets/images/ranking1.png'),
+    require('../../assets/images/ranking2.png'),
+    require('../../assets/images/ranking3.png'),
+    require('../../assets/images/ranking4.png'),
+    require('../../assets/images/ranking5.png'),
+    require('../../assets/images/ranking6.png'),
   ];
+  //게시글 가져오기
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const endpoint =
+          selectedTab === '농부'
+            ? 'https://172.28.2.114/board/farmer'
+            : 'https://172.28.2.114/board/worker';
+        const response = await axios.get(endpoint);
+        setPosts(response.data);
+      } catch (error) {
+        setPosts(selectedTab === '농부' ? dummyWorkerPosts : dummyWorkerPosts);
+      }
+    };
+
+    fetchPosts();
+  }, [selectedTab]);
+
+  //게시글 정렬시키기
+  const sortedPosts = [...posts].sort((a, b) => {
+    if (selectedFilter === '최신순') {
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    } else if (selectedFilter === '인기순') {
+      return b.viewCnt - a.viewCnt;
+    } else if (selectedFilter === '추천순') {
+      return b.likesCnt - a.likesCnt;
+    }
+    return 0;
+  });
+
   return (
     <View style={styles.container}>
       <AppBar />
-      <View style={styles.tabContainer}>
-        {['농부', '근로자'].map(tab => (
-          <TouchableOpacity
-            key={tab}
-            onPress={() => setSelectedTab(tab)}
-            style={[
-              styles.tabItem,
-              selectedTab === tab && styles.activeTabItem,
-            ]}>
-            <Text
-              style={[
-                styles.tabText,
-                selectedTab === tab && styles.activeTabText,
-              ]}>
-              {tab}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <TabContainer
+        tabs={['농부', '근로자']}
+        selectedTab={selectedTab}
+        onTabPress={setSelectedTab}
+      />
 
-      <View style={styles.searchBarContainer}>
-        <Ionicons name="search" size={20} color="gray" />
-        <TextInput
-          placeholder="도움을 줄 일꾼을 찾아보세요!"
-          placeholderTextColor="gray"
-          style={styles.searchInput}
-        />
-      </View>
+      <SearchBar userType={selectedTab === '농부' ? 'farmer' : 'worker'} />
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.rankingSection}>
-          <Text style={styles.sectionTitle}>이번 달 인기 알바생</Text>
+          <Text style={styles.sectionTitle}>
+            {selectedTab === '농부'
+              ? '이번 달 인기 알바생'
+              : '이번 달 인기 농장주'}
+          </Text>
           <View style={styles.rankingList}>
-            {['김나혜', '이현석', '최윤정'].map((name, idx) => (
+            {(selectedTab === '농부'
+              ? ['김나혜', '이현석', '최윤정']
+              : ['김농장', '이농장', '최농장']
+            ).map((name, idx) => (
               <View key={idx} style={styles.rankingItem}>
                 <Image
                   source={rankingImages[idx]}
@@ -87,64 +178,30 @@ const HomeMain = () => {
           ))}
         </View>
 
-        {[1, 2, 3].map((_, index) => (
-          <PostCard key={index} />
-        ))}
+        {sortedPosts.map((post, index) => {
+          return (
+            <PostCard
+              key={post.boardId}
+              title={post.title}
+              authorName={post.authorName}
+              createdAt={post.createdAt}
+              viewCnt={post.viewCnt}
+              likesCnt={post.likesCnt}
+              comments={post.comments}
+              imageUrl={post.imgUrl}
+            />
+          );
+        })}
       </ScrollView>
 
-      <TouchableOpacity style={styles.writeButton}>
-        <Image
-          source={require('../../assets/icons/Pen.png')}
-          style={styles.writeButtonImg}
-        />
-
-        <Text style={styles.writeButtonText}>글쓰기</Text>
-      </TouchableOpacity>
+      <WriteButton />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: 'white', paddingHorizontal: 16},
-  tabContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  tabItem: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  activeTabItem: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#1DB954',
-  },
-  tabText: {
-    fontSize: 16,
-    color: '#888',
-  },
-  activeTabText: {
-    color: '#1DB954',
-    fontWeight: 'bold',
-  },
-  searchBarContainer: {
-    marginTop: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
 
-    borderRadius: 30,
-    paddingHorizontal: 12,
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: 8,
-  },
   rankingSection: {
     marginTop: 20,
     borderBottomWidth: 1,
@@ -198,28 +255,6 @@ const styles = StyleSheet.create({
   activeFilterText: {
     color: 'white',
     fontWeight: 'bold',
-  },
-
-  writeButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#7DCA79',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 30,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  writeButtonText: {
-    color: 'white',
-    marginLeft: 6,
-    fontWeight: 'bold',
-  },
-
-  writeButtonImg: {
-    width: 20,
-    height: 20,
   },
 });
 

@@ -1,13 +1,18 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import MyPageMain from './MyPageMain';
+import MyPosts from './MyPosts';
+import MyLikes from './MyLikes';
+import MyBusiness from './MyBusiness';
 const Stack = createStackNavigator();
 
 const MyPageScreen = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="MyPageMain" component={MyPageMain} />
-      {/* Add other screens here if needed */}
+      <Stack.Screen name="MyPosts" component={MyPosts} />
+      <Stack.Screen name="MyLikes" component={MyLikes} />
+      <Stack.Screen name="MyBusiness" component={MyBusiness} />
     </Stack.Navigator>
   );
 };

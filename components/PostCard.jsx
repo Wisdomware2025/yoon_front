@@ -1,42 +1,64 @@
-import {View, StyleSheet, Text, Image} from 'react-native';
+import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {useNavigation} from '@react-navigation/native';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/ko';
 
-const PostCard = () => {
+dayjs.extend(relativeTime);
+dayjs.locale('ko');
+
+const PostCard = ({
+  title,
+  authorName,
+  createdAt,
+  viewCnt,
+  likesCnt,
+
+  comments,
+  imageUrl,
+}) => {
+  const navigation = useNavigation();
+
   return (
-    <View style={styles.postCard}>
-      <View style={styles.postContent}>
-        <View style={styles.postText}>
-          <Text style={styles.postTitle}>사과 수확 도와드립니다!</Text>
-          <Text style={styles.postAuthor}>- 성실한 사과</Text>
+    <TouchableOpacity onPress={() => navigation.navigate('PostDetail')}>
+      <View style={styles.postCard}>
+        <View style={styles.postContent}>
+          <View style={styles.postText}>
+            <Text style={styles.postTitle}>{title}</Text>
+            <Text style={styles.postAuthor}>- {authorName}</Text>
 
-          <View style={styles.postInfoRow}>
-            <Ionicons
-              name="time-outline"
-              size={14}
-              style={styles.postInfoIcon}
-            />
-            <Text style={styles.postInfoText}>33분 전 · 조회 79</Text>
+            <View style={styles.postInfoRow}>
+              <Ionicons
+                name="time-outline"
+                size={14}
+                style={styles.postInfoIcon}
+              />
+              <Text style={styles.postInfoText}>
+                {dayjs(createdAt).fromNow()} · 조회 {viewCnt}
+              </Text>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.postImageWrapper}>
-          <Image
-            source={require('../assets/img/apple.png')}
-            style={styles.postImage}
-          />
-
-          <View style={styles.iconRow}>
-            <Ionicons name="heart-outline" size={16} />
-            <Text style={styles.iconText}>6</Text>
-            <Ionicons
-              name="chatbubble-ellipses-outline"
-              style={styles.iconTextChat}
+          <View style={styles.postImageWrapper}>
+            <Image
+              source={{uri: imageUrl}}
+              style={styles.postImage}
+              resizeMode="cover"
             />
-            <Text style={styles.iconText}>3</Text>
+            <View style={styles.iconRow}>
+              <Ionicons name="heart-outline" size={16} />
+              <Text style={styles.iconText}>{likesCnt}</Text>
+              <Ionicons
+                name="chatbubble-ellipses-outline"
+                style={styles.iconTextChat}
+              />
+              <Text style={styles.iconText}>{comments}</Text>
+            </View>
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
