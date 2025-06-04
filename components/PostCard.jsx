@@ -9,6 +9,7 @@ dayjs.extend(relativeTime);
 dayjs.locale('ko');
 
 const PostCard = ({
+  _id,
   title,
   authorName,
   createdAt,
@@ -16,12 +17,13 @@ const PostCard = ({
   likesCnt,
 
   comments,
-  imageUrl,
+  image,
 }) => {
   const navigation = useNavigation();
 
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('PostDetail')}>
+    <TouchableOpacity
+      onPress={() => navigation.navigate('PostDetail', {postId: _id})}>
       <View style={styles.postCard}>
         <View style={styles.postContent}>
           <View style={styles.postText}>
@@ -41,12 +43,26 @@ const PostCard = ({
           </View>
 
           <View style={styles.postImageWrapper}>
-            <Image
-              source={{uri: imageUrl}}
-              style={styles.postImage}
-              resizeMode="cover"
-            />
-            <View style={styles.iconRow}>
+            {image && (Array.isArray(image) ? image[0] : image) ? (
+              <Image
+                source={
+                  typeof (Array.isArray(image) ? image[0] : image) === 'number'
+                    ? Array.isArray(image)
+                      ? image[0]
+                      : image
+                    : {uri: Array.isArray(image) ? image[0] : image}
+                }
+                style={styles.postImage}
+                resizeMode="cover"
+              />
+            ) : null}
+            <View
+              style={[
+                styles.iconRow,
+                !(image && (Array.isArray(image) ? image[0] : image)) && {
+                  marginTop: 70,
+                },
+              ]}>
               <Ionicons name="heart-outline" size={16} />
               <Text style={styles.iconText}>{likesCnt}</Text>
               <Ionicons
@@ -117,7 +133,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 10,
-    backgroundColor: '#ddd',
+    marginBottom: 6,
   },
 
   iconRow: {

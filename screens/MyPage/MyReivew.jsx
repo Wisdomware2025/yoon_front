@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import {View, StyleSheet, Text, Image, FlatList} from 'react-native';
 import HeaderWithBack from '../../components/HeaderWithBack';
+import axios from 'axios';
 const dummyPosts = [
   {
     profileImage: require('../../assets/images/ranking1.png'),

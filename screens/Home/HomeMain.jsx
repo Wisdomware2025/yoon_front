@@ -18,73 +18,73 @@ import axios from 'axios';
 
 const dummyFarmerPosts = [
   {
-    boardId: 1,
+    _id: 1,
     title: '감자 캐실 분 도와드립니다!',
     authorName: '김나혜',
     createdAt: '2025-05-20T12:34:56',
     viewCnt: 120,
     likesCnt: 34,
     comments: 3,
-    imgUrl: require('../../assets/images/ranking1.png'),
+    image: require('../../assets/images/ranking1.png'),
   },
   {
-    boardId: 2,
+    _id: 2,
     title: '고구마 캐실 분 도와드립니다!',
     authorName: '이현석',
     createdAt: '2025-05-20T12:50:21',
     viewCnt: 13,
     likesCnt: 30,
     comments: 5,
-    imgUrl: require('../../assets/images/ranking2.png'),
+    image: require('../../assets/images/ranking2.png'),
   },
   {
-    boardId: 3,
+    _id: 3,
     title: '옥수수 캐실 분 도와드립니다!',
     authorName: '최윤정정',
     createdAt: '2025-05-19T12:22:30',
     viewCnt: 19,
     likesCnt: 100,
     comments: 8,
-    imgUrl: require('../../assets/images/ranking3.png'),
+    image: require('../../assets/images/ranking3.png'),
   },
 ];
 const dummyWorkerPosts = [
   {
-    boardId: 1,
+    _id: 1,
     title: '감자 캐실 분 구해요!',
     authorName: '김나혜',
     createdAt: '2025-05-20T12:34:56',
     viewCnt: 120,
     likesCnt: 34,
     comments: 3,
-    imgUrl: require('../../assets/images/ranking1.png'),
+    image: require('../../assets/images/ranking1.png'),
   },
   {
-    boardId: 2,
+    _id: 2,
     title: '고구마 캐실 분 구해요!',
     authorName: '이현석',
     createdAt: '2025-05-20T12:50:21',
     viewCnt: 13,
     likesCnt: 30,
     comments: 5,
-    imgUrl: require('../../assets/images/ranking2.png'),
+    image: require('../../assets/images/ranking2.png'),
   },
   {
-    boardId: 3,
+    _id: 3,
     title: '옥수수 캐실 분 구해요!',
-    authorName: '최윤정정',
+    authorName: '최윤정',
     createdAt: '2025-05-19T12:22:30',
     viewCnt: 19,
     likesCnt: 100,
     comments: 8,
-    imgUrl: require('../../assets/images/ranking3.png'),
+    image: require('../../assets/images/ranking3.png'),
   },
 ];
 
 const HomeMain = () => {
   const [posts, setPosts] = useState([]);
 
-  const [selectedTab, setSelectedTab] = useState('농부');
+  const [selectedTab, setSelectedTab] = useState('일손 찾기');
   const [selectedFilter, setSelectedFilter] = useState('최신순');
   const rankingImages = [
     require('../../assets/images/ranking1.png'),
@@ -99,13 +99,15 @@ const HomeMain = () => {
     const fetchPosts = async () => {
       try {
         const endpoint =
-          selectedTab === '농부'
-            ? 'https://172.28.2.114/board/farmer'
-            : 'https://172.28.2.114/board/worker';
+          selectedTab === '일손 찾기'
+            ? 'http://172.28.2.114:5000/boards/farmer'
+            : 'http://172.28.2.114:5000/boards/worker';
         const response = await axios.get(endpoint);
         setPosts(response.data);
       } catch (error) {
-        setPosts(selectedTab === '농부' ? dummyWorkerPosts : dummyWorkerPosts);
+        setPosts(
+          selectedTab === '일손 찾기' ? dummyFarmerPosts : dummyWorkerPosts,
+        );
       }
     };
 
@@ -128,22 +130,22 @@ const HomeMain = () => {
     <View style={styles.container}>
       <AppBar />
       <TabContainer
-        tabs={['농부', '근로자']}
+        tabs={['일손 찾기', '일감 찾기']}
         selectedTab={selectedTab}
         onTabPress={setSelectedTab}
       />
 
-      <SearchBar userType={selectedTab === '농부' ? 'farmer' : 'worker'} />
+      <SearchBar userType={selectedTab === '일손 찾기' ? 'farmer' : 'worker'} />
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.rankingSection}>
           <Text style={styles.sectionTitle}>
-            {selectedTab === '농부'
+            {selectedTab === '일손 찾기'
               ? '이번 달 인기 알바생'
               : '이번 달 인기 농장주'}
           </Text>
           <View style={styles.rankingList}>
-            {(selectedTab === '농부'
+            {(selectedTab === '일손 찾기'
               ? ['김나혜', '이현석', '최윤정']
               : ['김농장', '이농장', '최농장']
             ).map((name, idx) => (
@@ -178,17 +180,17 @@ const HomeMain = () => {
           ))}
         </View>
 
-        {sortedPosts.map((post, index) => {
+        {sortedPosts.map(post => {
           return (
             <PostCard
-              key={post.boardId}
+              key={post._id}
               title={post.title}
               authorName={post.authorName}
               createdAt={post.createdAt}
               viewCnt={post.viewCnt}
               likesCnt={post.likesCnt}
               comments={post.comments}
-              imageUrl={post.imgUrl}
+              image={post.image}
             />
           );
         })}

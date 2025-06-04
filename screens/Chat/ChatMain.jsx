@@ -119,11 +119,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 20,
   },
   subTitle: {
     color: '#555',
-    fontSize: 12,
+    fontSize: 15,
     marginTop: 2,
   },
   imageRow: {

@@ -1,11 +1,11 @@
 import React from 'react';
-import {View, Text, Image, TouchableOpacity} from 'react-native';
+import {View, Text, Image, TouchableOpacity, ScrollView} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import styles from './style';
 
-const MyPageItem = ({image, title}) => {
+const MyPageItem = ({image, title, onPress}) => {
   return (
-    <TouchableOpacity style={styles.container3}>
+    <TouchableOpacity style={styles.container3} onPress={onPress}>
       <Image style={styles.img2} source={image} />
       <Text style={styles.title2}>{title}</Text>
     </TouchableOpacity>
@@ -21,13 +21,22 @@ const Boxx = ({number, title}) => {
   );
 };
 
-const MyPage = () => {
+const MyPageMain = () => {
   const navigation = useNavigation();
-  const hanldeMyPosts = () => {
+  const handleMyLikesPress = () => {
+    navigation.navigate('MyLikes');
+  };
+  const handleMyBusinessPress = () => {
+    navigation.navigate('MyBusiness');
+  };
+  const handleMyPostsPress = () => {
     navigation.navigate('MyPosts');
   };
+  const handleReviewCommentPress = () => {
+    navigation.navigate('ReviewComment');
+  };
   return (
-    <>
+    <ScrollView style={styles.MyPageMain}>
       <View style={styles.titleContainer}>
         <Text style={styles.title}>내 정보</Text>
       </View>
@@ -54,24 +63,26 @@ const MyPage = () => {
         <MyPageItem
           image={require('../../assets/images/bill.png')}
           title="거래 내역"
+          onPress={handleMyBusinessPress}
         />
-        <TouchableOpacity onPress={hanldeMyPosts}>
-          <MyPageItem
-            image={require('../../assets/images/clipboard.png')}
-            title="게시글 목록"
-          />
-        </TouchableOpacity>
+        <MyPageItem
+          image={require('../../assets/images/clipboard.png')}
+          title="게시글 목록"
+          onPress={handleMyPostsPress}
+        />
         <MyPageItem
           image={require('../../assets/images/heart.png')}
           title="좋아요 목록"
+          onPress={handleMyLikesPress}
         />
         <MyPageItem
           image={require('../../assets/images/chat.png')}
           title="내 후기 및 댓글"
+          onPress={handleReviewCommentPress}
         />
       </View>
-    </>
+    </ScrollView>
   );
 };
 
-export default MyPage;
+export default MyPageMain;

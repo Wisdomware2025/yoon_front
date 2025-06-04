@@ -1,12 +1,15 @@
 import {StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
+  MyPageMain: {
+    backgroundColor: 'white',
+  },
   titleContainer: {
     width: '100%',
     height: 100,
     display: 'flex',
     justifyContent: 'center',
-    marginTop: 30,
+    marginTop: 5,
   },
   title: {
     fontSize: 36,
@@ -18,8 +21,7 @@ const styles = StyleSheet.create({
     height: 'auto',
     display: 'flex',
     alignItems: 'center',
-    gap: 10,
-    padding: 20,
+    gap: 5,
   },
   photoBox: {
     width: 125,
@@ -30,6 +32,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 20,
     fontWeight: 800,
+    marginTop: 5,
   },
   intro: {
     fontSize: 13,
@@ -42,7 +45,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,
+    marginTop: 20,
     gap: 65,
   },
   Box1: {
@@ -70,8 +73,9 @@ const styles = StyleSheet.create({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    padding: 30,
-    gap: 35,
+    marginTop: 20,
+    marginLeft: 30,
+    gap: 30,
   },
   container3: {
     width: '100%',

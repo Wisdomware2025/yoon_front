@@ -1,10 +1,12 @@
 import {View, StyleSheet, Text} from 'react-native';
 import BackButton from './BackButton';
-const HeaderWithBack = ({title}) => {
+const HeaderWithBack = ({title, style}) => {
   return (
-    <View style={styles.header}>
-      <BackButton />
-      <Text style={styles.Title}>{title}</Text>
+    <View style={style}>
+      <View style={styles.header}>
+        <BackButton />
+        <Text style={styles.Title}>{title}</Text>
+      </View>
     </View>
   );
 };

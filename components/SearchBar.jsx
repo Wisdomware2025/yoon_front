@@ -15,6 +15,9 @@ const SearchBar = ({userType}) => {
         placeholder={getPlaceholder()}
         placeholderTextColor="gray"
         style={styles.searchInput}
+        multiline={true}
+        numberOfLines={1}
+        scrollEnabled={false}
       />
     </View>
   );
@@ -31,9 +34,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
   },
+
   searchInput: {
     flex: 1,
     marginLeft: 8,
+    height: '100%',
+    // textAlignVertical: 'center',
   },
 });
 export default SearchBar;
