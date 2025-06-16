@@ -9,6 +9,7 @@ import {
   Modal,
   TextInput,
   TouchablOpacity,
+  Image,
   Pressable,
 } from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
@@ -56,7 +57,7 @@ LocaleConfig.locales['ko'] = {
 };
 LocaleConfig.defaultLocale = 'ko';
 const today = dayjs().format('YYYY-MM-DD');
-const CalendarMain = () => {
+const Test = () => {
   const navigation = useNavigation();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -175,7 +176,49 @@ const CalendarMain = () => {
               <Text style={styles.modalHeaderText}>2025.04.08.화</Text>
             </View>
             <View style={styles.modalMain}>
-              <Text style={styles.modalMainText}>일정이 없습니다.</Text>
+              <View style={styles.modalMainContent}>
+                <Image
+                  resource={require('../../assets/Date.png')}
+                  style={styles.modalMaincontentIcon}
+                />
+                <Text style={styles.modalMainContentText}>
+                  4월 8일 ~ 4월 11일
+                </Text>
+              </View>
+              <View style={styles.modalMainContent}>
+                <Image
+                  resource={require('../../assets/Time.png')}
+                  style={styles.modalMaincontentIcon}
+                />
+                <Text style={styles.modalMainContentText}>
+                  오전 8시 ~ 오전 11시
+                </Text>
+              </View>
+              <View style={styles.modalMainContent}>
+                <Image
+                  resource={require('../../assets/Witch.png')}
+                  style={styles.modalMaincontentIcon}
+                />
+                <Text style={styles.modalMainContentText}>
+                  봉양면 봉호로 14 사과 농장 13호
+                </Text>
+              </View>
+              <View style={styles.modalMainContent}>
+                <Image
+                  resource={require('../../assets/User.png')}
+                  style={styles.modalMaincontentIcon}
+                />
+                <Text style={styles.modalMainContentText}>
+                  최다이애나, 응우옌, 싱하오
+                </Text>
+              </View>
+              <View style={styles.modalMainContent}>
+                <Image
+                  resource={require('../../assets/Money.png')}
+                  style={styles.modalMaincontentIcon}
+                />
+                <Text style={styles.modalMainContentText}>시급 10,000원</Text>
+              </View>
             </View>
             <View style={styles.modalFooter}>
               <Pressable onPress={onPressModalClose} style={styles.closeButton}>
@@ -308,9 +351,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  modalMainText: {
-    fontSize: 30,
-  },
+
   modalFooter: {
     flexDirection: 'row',
   },
@@ -343,4 +384,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CalendarMain;
+export default Test;
