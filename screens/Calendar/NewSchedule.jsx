@@ -69,14 +69,12 @@ const NewSchedule = () => {
           placeholderTextColor="rgba(0, 0, 0, 0.5)"
         />
       </View>
-
-      {/* //날짜 추가 */}
       <View style={styles.inputForm}>
         <Text style={styles.inputTitle}>날짜</Text>
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.textInput1}
-            placeholder="달력 모양을 클릭하면 날짜를 입력할 수 있어요."
+            placeholder="달력 모양을 누르면 날짜를 입력할 수 있어요."
             placeholderTextColor="rgba(0, 0, 0, 0.5)"
             value={
               dateSelected
@@ -110,13 +108,12 @@ const NewSchedule = () => {
         )}
       </View>
 
-      {/* //시간 추가 */}
       <View style={styles.inputForm}>
         <Text style={styles.inputTitle}>시간</Text>
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.textInput1}
-            placeholder="시계 모양을 클릭하면 시간을 입력할 수 있어요."
+            placeholder="시계 모양을 누르면 시간을 입력할 수 있어요."
             placeholderTextColor="rgba(0, 0, 0, 0.5)"
             value={
               timeSelected
@@ -148,8 +145,7 @@ const NewSchedule = () => {
           />
         )}
       </View>
-      {/* 
-      //주소 입력 */}
+
       <View style={styles.inputForm}>
         <Text style={styles.inputTitle}>위치</Text>
         <View style={styles.inputContainer}>
@@ -194,8 +190,7 @@ const NewSchedule = () => {
           </TouchableOpacity>
         </View>
       </Modal>
-      {/* 
-      //임금 부분 */}
+
       <View style={styles.inputForm}>
         <Text style={styles.inputTitle}>임금</Text>
         <View style={styles.inputContainer}>
@@ -214,9 +209,7 @@ const NewSchedule = () => {
           />
           <TextInput
             style={styles.textInput1}
-            placeholder={
-              value === '시급' ? '현재 최저시급은 10,030원 입니다.' : '0'
-            }
+            placeholder={value === '시급' ? '현재 최저시급 10,030원' : '0'}
             placeholderTextColor="rgba(0, 0, 0, 0.5)"
           />
           <View style={styles.buttonContainer}>

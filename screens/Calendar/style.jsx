@@ -1,8 +1,9 @@
-import { StyleSheet } from 'react-native';
+import {StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
   background: {
     backgroundColor: 'white',
+    padding: 20,
   },
 
   Container: {
@@ -17,13 +18,13 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: '800',
     position: 'absolute',
-    marginRight: 50,
+    marginRight: 10,
   },
 
   backButton: {
-    width: 27,
-    height: 27,
-    marginRight: 340,
+    width: 25,
+    height: 25,
+    marginRight: 300,
     marginTop: 5,
   },
 
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
   },
 
   inputTitle: {
-    fontSize: 25,
+    fontSize: 22,
     marginLeft: 30,
     fontWeight: '500',
   },

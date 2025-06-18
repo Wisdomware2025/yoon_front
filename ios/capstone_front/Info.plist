@@ -50,6 +50,7 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>BalooPaaji2-Bold.ttf</string>
+		<string>BalooPaaji2-ExtraBold.ttf</string>
 	</array>
 </dict>
 </plist>

@@ -8,8 +8,8 @@ const Stack = createStackNavigator();
 const CalendarScreen = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
-      {/* <Stack.Screen name="CalendarMain" component={CalendarMain} /> */}
-      <Stack.Screen name="Test" component={Test} />
+      <Stack.Screen name="CalendarMain" component={CalendarMain} />
+      {/* <Stack.Screen name="Test" component={Test} /> */}
       <Stack.Screen name="NewSchedule" component={NewSchedule} />
     </Stack.Navigator>
   );

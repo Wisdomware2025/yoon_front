@@ -18,12 +18,17 @@ const PostCard = ({
 
   comments,
   image,
+  role,
 }) => {
   const navigation = useNavigation();
 
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate('PostDetail', {postId: _id})}>
+      onPress={
+        role === 'farmer'
+          ? () => navigation.navigate('PostDetailFarmer', {_Id: _id})
+          : () => navigation.navigate('PostDetailWorker', {_Id: _id})
+      }>
       <View style={styles.postCard}>
         <View style={styles.postContent}>
           <View style={styles.postText}>

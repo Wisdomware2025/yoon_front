@@ -1,19 +1,20 @@
 import {StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
-  MyPageMain: {
-    backgroundColor: 'white',
+  background: {
+    padding: 30,
   },
+
   titleContainer: {
     width: '100%',
     height: 100,
     display: 'flex',
     justifyContent: 'center',
-    marginTop: 5,
+    marginTop: 30,
   },
   title: {
     fontSize: 36,
-    fontWeight: 800,
+    fontWeight: 500,
     marginLeft: 30,
   },
   contentBox: {
@@ -21,7 +22,8 @@ const styles = StyleSheet.create({
     height: 'auto',
     display: 'flex',
     alignItems: 'center',
-    gap: 5,
+    gap: 10,
+    padding: 20,
   },
   photoBox: {
     width: 125,
@@ -31,8 +33,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 20,
-    fontWeight: 800,
-    marginTop: 5,
+    fontWeight: 500,
   },
   intro: {
     fontSize: 13,
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 20,
+    marginTop: 10,
     gap: 65,
   },
   Box1: {
@@ -57,11 +58,10 @@ const styles = StyleSheet.create({
   },
   number: {
     fontSize: 30,
-    fontWeight: 800,
+    fontWeight: 500,
   },
   text1: {
     fontSize: 15,
-    fontWeight: 500,
   },
   separator: {
     height: 1,
@@ -73,9 +73,8 @@ const styles = StyleSheet.create({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    marginTop: 20,
-    marginLeft: 30,
-    gap: 30,
+    padding: 30,
+    gap: 35,
   },
   container3: {
     width: '100%',

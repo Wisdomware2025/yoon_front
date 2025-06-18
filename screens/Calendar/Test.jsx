@@ -90,6 +90,15 @@ const Test = () => {
       customHeaderStyles[`dayTextAtIndex${i}`] = {color: 'black'};
     }
   }
+  const onPressCorrection = () => {
+    setIsModalVisible(false);
+    navigation.navigate('CorrectionSchedule');
+  };
+  const onPressDelete = () => {
+    setIsModalVisible(false);
+    // 여기에 삭제 로직을 추가하세요.
+    console.log('삭제되었습니다.');
+  };
   return (
     <View style={styles.container}>
       <View style={styles.infoBox}>
@@ -174,58 +183,73 @@ const Test = () => {
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalHeaderText}>2025.04.08.화</Text>
+              <Pressable onPress={newSchedulonPress} style={styles.plusButton}>
+                <Text style={styles.plusButtonText}>+</Text>
+              </Pressable>
             </View>
             <View style={styles.modalMain}>
               <View style={styles.modalMainContent}>
-                <Image
-                  resource={require('../../assets/Date.png')}
-                  style={styles.modalMaincontentIcon}
-                />
+                <View style={styles.iconWrapper}>
+                  <Image
+                    source={require('../../assets/icons/Date.png')}
+                    style={styles.modalMaincontentIcon}
+                  />
+                </View>
                 <Text style={styles.modalMainContentText}>
                   4월 8일 ~ 4월 11일
                 </Text>
               </View>
               <View style={styles.modalMainContent}>
-                <Image
-                  resource={require('../../assets/Time.png')}
-                  style={styles.modalMaincontentIcon}
-                />
+                <View style={styles.iconWrapper}>
+                  <Image
+                    source={require('../../assets/icons/Time.png')}
+                    style={styles.modalMaincontentIcon}
+                  />
+                </View>
                 <Text style={styles.modalMainContentText}>
                   오전 8시 ~ 오전 11시
                 </Text>
               </View>
               <View style={styles.modalMainContent}>
-                <Image
-                  resource={require('../../assets/Witch.png')}
-                  style={styles.modalMaincontentIcon}
-                />
+                <View style={styles.iconWrapper}>
+                  <Image
+                    source={require('../../assets/icons/Witch.png')}
+                    style={styles.modalMaincontentIcon}
+                  />
+                </View>
                 <Text style={styles.modalMainContentText}>
                   봉양면 봉호로 14 사과 농장 13호
                 </Text>
               </View>
               <View style={styles.modalMainContent}>
-                <Image
-                  resource={require('../../assets/User.png')}
-                  style={styles.modalMaincontentIcon}
-                />
+                <View style={styles.iconWrapper}>
+                  <Image
+                    source={require('../../assets/icons/User.png')}
+                    style={styles.modalMaincontentIcon}
+                  />
+                </View>
                 <Text style={styles.modalMainContentText}>
                   최다이애나, 응우옌, 싱하오
                 </Text>
               </View>
               <View style={styles.modalMainContent}>
-                <Image
-                  resource={require('../../assets/Money.png')}
-                  style={styles.modalMaincontentIcon}
-                />
+                <View style={styles.iconWrapper}>
+                  <Image
+                    source={require('../../assets/icons/Money.png')}
+                    style={styles.modalMaincontentIcon}
+                  />
+                </View>
                 <Text style={styles.modalMainContentText}>시급 10,000원</Text>
               </View>
             </View>
             <View style={styles.modalFooter}>
-              <Pressable onPress={onPressModalClose} style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>닫기</Text>
+              <Pressable
+                onPress={onPressModalClose}
+                style={styles.correctionButton}>
+                <Text style={styles.correctionButtonText}>수정하기</Text>
               </Pressable>
-              <Pressable onPress={newSchedulonPress} style={styles.plusButton}>
-                <Text style={styles.plusButtonText}>추가하기</Text>
+              <Pressable onPress={onPressModalClose} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>삭제하기</Text>
               </Pressable>
             </View>
           </View>
@@ -334,6 +358,9 @@ const styles = StyleSheet.create({
     height: 330,
   },
   modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     height: 60,
     borderBottomColor: '#323232',
     borderBottomWidth: 1,
@@ -347,34 +374,48 @@ const styles = StyleSheet.create({
   },
 
   modalMain: {
-    height: 220,
+    marginTop: 15,
+    height: 208,
+    alignItems: 'flex-start', // 전체 왼쪽 정렬
+  },
+
+  modalMainContent: {
+    marginLeft: 20,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    marginVertical: 8,
+  },
+
+  iconWrapper: {
+    width: 40,
+    alignItems: 'center',
+    marginRight: 10,
+  },
+
+  modalMaincontentIcon: {
+    width: 30,
+    height: 30,
+  },
+
+  modalMainContentText: {
+    fontSize: 16,
   },
 
   modalFooter: {
     flexDirection: 'row',
   },
   plusButton: {
-    marginLeft: 10,
-    backgroundColor: '#7DCA79',
-    borderRadius: 30,
-
-    width: 100,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginRight: 30,
   },
   plusButtonText: {
-    color: '#fff',
-    fontSize: 15,
+    fontSize: 30,
   },
   closeButton: {
-    marginLeft: 105,
+    marginLeft: 210,
     backgroundColor: 'rgba(200, 200, 200, 0.5)',
     borderRadius: 30,
     width: 100,
-    height: 40,
+    height: 35,
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -4,6 +4,10 @@
     {
       "path": "assets/fonts/BalooPaaji2-Bold.ttf",
       "sha1": "69125bfeb6139f1538ab3bb36d3aa92f94ff098d"
+    },
+    {
+      "path": "assets/fonts/BalooPaaji2-ExtraBold.ttf",
+      "sha1": "7cf99bd9a1736513ef55c1edfe7fe1673d9d2b72"
     }
   ]
 }

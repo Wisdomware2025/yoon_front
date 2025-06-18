@@ -1,17 +1,10 @@
-import React from 'react';
-import {useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import dayjs from 'dayjs';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  TextInput,
-  TouchablOpacity,
-  Pressable,
-} from 'react-native';
+import {View, Text, StyleSheet, Modal, Pressable} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
+import axios from 'axios';
+import 'dayjs/locale/ko';
 
 LocaleConfig.locales['ko'] = {
   monthNames: [
@@ -55,55 +48,67 @@ LocaleConfig.locales['ko'] = {
   today: '오늘',
 };
 LocaleConfig.defaultLocale = 'ko';
+
 const today = dayjs().format('YYYY-MM-DD');
+
 const CalendarMain = () => {
   const navigation = useNavigation();
-
+  const [recentSchedules, setRecentSchedules] = useState({});
+  const [selectedDate, setSelectedDate] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const newSchedulonPress = () => {
-    setIsModalVisible(false);
-    navigation.navigate('NewSchedule');
+
+  const fetchSchedules = async () => {
+    try {
+      const endpoint = 'http://172.28.2.114:5000/schedules/recent';
+      const response = await axios.get(endpoint);
+      setRecentSchedules(response.data);
+    } catch (error) {
+      console.error(error);
+    }
   };
-  useEffect(() => {}, []);
-  const onPressModalOpen = () => {
+
+  useEffect(() => {
+    fetchSchedules();
+  }, []);
+
+  const onPressModalOpen = date => {
+    setSelectedDate(date);
     setIsModalVisible(true);
   };
+
   const onPressModalClose = () => {
     setIsModalVisible(false);
   };
 
-  const [selectedDate, setSelectedDate] = useState(null);
+  const onPressNewSchedule = () => {
+    setIsModalVisible(false);
+    navigation.navigate('NewSchedule', {selectedDate});
+  };
 
   const customHeaderStyles = {};
-
   for (let i = 0; i < 7; i++) {
-    if (i === 0) {
-      customHeaderStyles[`dayTextAtIndex${i}`] = {
-        color: '#FF0000',
-      };
-    } else if (i === 6) {
-      customHeaderStyles[`dayTextAtIndex${i}`] = {
-        color: '#007BA4',
-      };
-    } else {
-      customHeaderStyles[`dayTextAtIndex${i}`] = {color: 'black'};
-    }
+    customHeaderStyles[`dayTextAtIndex${i}`] =
+      i === 0
+        ? {color: '#FF0000'}
+        : i === 6
+        ? {color: '#007BA4'}
+        : {color: 'black'};
   }
+
   return (
     <View style={styles.container}>
       <View style={styles.infoBox}>
         <View style={styles.verticalText}>
-          <Text style={styles.dayLeftText}>3일</Text>
+          <Text style={styles.dayLeftText}>{recentSchedules.date}</Text>
           <Text style={styles.dayLeftMiniText}>남음</Text>
         </View>
 
         <View style={styles.detailContainer}>
           <Text style={styles.detailText}>
-            최다예나, 옹우현, 심하오씨와 함께{'\n'}
-            사과 농장{'\n'}
-            <Text style={styles.highlightText}>
-              봉양면 봉호로 14 과일농장 12호
-            </Text>
+            {recentSchedules.workers}와 함께{'\n'}
+            {recentSchedules.worker}
+            {'\n'}
+            <Text style={styles.highlightText}>{recentSchedules.location}</Text>
             에서
           </Text>
         </View>
@@ -117,20 +122,19 @@ const CalendarMain = () => {
               {direction === 'left' ? '<' : '>'}
             </Text>
           )}
-          renderHeader={date => {
-            const header = dayjs(date).format('YYYY.MM');
-            return (
-              <View style={styles.headercontainer}>
-                <Text style={styles.headerText}>{header}</Text>
-              </View>
-            );
-          }}
+          renderHeader={date => (
+            <View style={styles.headercontainer}>
+              <Text style={styles.headerText}>
+                {dayjs(date).format('YYYY.MM')}
+              </Text>
+            </View>
+          )}
           dayComponent={({date, state}) => {
             const isToday = date.dateString === today;
             const isOtherMonth = state === 'disabled';
 
             return (
-              <Pressable onPress={onPressModalOpen}>
+              <Pressable onPress={() => onPressModalOpen(date)}>
                 <View
                   style={[
                     styles.dayContainer,
@@ -140,9 +144,8 @@ const CalendarMain = () => {
                   <Text
                     style={[
                       styles.dayText,
-                      state === 'disabled' && styles.disabledText,
-                      isToday && styles.todayText,
                       isOtherMonth && styles.otherMonthText,
+                      isToday && styles.todayText,
                     ]}>
                     {date.day}
                   </Text>
@@ -151,9 +154,7 @@ const CalendarMain = () => {
             );
           }}
           theme={{
-            'stylesheet.calendar.header': {
-              ...customHeaderStyles,
-            },
+            'stylesheet.calendar.header': customHeaderStyles,
             textDayHeaderFontSize: 20,
             arrowColor: '#000',
             textMonthFontSize: 20,
@@ -164,15 +165,18 @@ const CalendarMain = () => {
       </View>
 
       <Modal
-        animationType={newSchedulonPress == null ? 'slide' : 'none'}
-        // animationType="slide"
+        animationType="slide"
         transparent={true}
         visible={isModalVisible}
-        setIsModalVisible={setIsModalVisible}>
+        onRequestClose={onPressModalClose}>
         <View style={styles.modalWrapper}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalHeaderText}>2025.04.08.화</Text>
+              <Text style={styles.modalHeaderText}>
+                {selectedDate
+                  ? dayjs(selectedDate.dateString).format('YYYY.MM.DD.ddd')
+                  : ''}
+              </Text>
             </View>
             <View style={styles.modalMain}>
               <Text style={styles.modalMainText}>일정이 없습니다.</Text>
@@ -181,7 +185,7 @@ const CalendarMain = () => {
               <Pressable onPress={onPressModalClose} style={styles.closeButton}>
                 <Text style={styles.closeButtonText}>닫기</Text>
               </Pressable>
-              <Pressable onPress={newSchedulonPress} style={styles.plusButton}>
+              <Pressable onPress={onPressNewSchedule} style={styles.plusButton}>
                 <Text style={styles.plusButtonText}>추가하기</Text>
               </Pressable>
             </View>
@@ -211,27 +215,23 @@ const styles = StyleSheet.create({
   },
   verticalText: {
     alignItems: 'center',
-    flexDirection: 'column',
-
     justifyContent: 'center',
   },
   dayLeftText: {
     fontSize: 25,
-
     lineHeight: 24,
     textAlign: 'center',
     fontWeight: 'bold',
-  },
-  detailContainer: {
-    flex: 1,
-    marginLeft: 15,
   },
   dayLeftMiniText: {
     fontSize: 15,
     lineHeight: 24,
     textAlign: 'center',
   },
-
+  detailContainer: {
+    flex: 1,
+    marginLeft: 15,
+  },
   detailText: {
     fontSize: 14,
     lineHeight: 22,
@@ -248,19 +248,13 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 25,
   },
-
   headerText: {
     fontSize: 25,
-    // fontWeight: 'bold',
-    // margin: 10,
-    // marginLeft: 10,
   },
-
   dayText: {
     fontSize: 20,
   },
   todayText: {
-    fontSize: 20,
     color: '#fff',
   },
   todayContainer: {
@@ -274,6 +268,8 @@ const styles = StyleSheet.create({
   },
   dayContainer: {
     height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   otherMonthText: {
     color: '#8E8E8E',
@@ -283,7 +279,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   modalContainer: {
     backgroundColor: '#EDFFEC',
     borderRadius: 10,
@@ -302,7 +297,6 @@ const styles = StyleSheet.create({
     margin: 10,
     marginLeft: 20,
   },
-
   modalMain: {
     height: 220,
     alignItems: 'center',
@@ -313,12 +307,12 @@ const styles = StyleSheet.create({
   },
   modalFooter: {
     flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 10,
   },
   plusButton: {
-    marginLeft: 10,
     backgroundColor: '#7DCA79',
     borderRadius: 30,
-
     width: 100,
     height: 40,
     justifyContent: 'center',
@@ -329,7 +323,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   closeButton: {
-    marginLeft: 105,
     backgroundColor: 'rgba(200, 200, 200, 0.5)',
     borderRadius: 30,
     width: 100,

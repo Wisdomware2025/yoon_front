@@ -12,6 +12,7 @@
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		C517E233B09F4958AB568BF3 /* BalooPaaji2-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 98812631EA6643EBABCDC19B /* BalooPaaji2-Bold.ttf */; };
+		91CD1085827347369F708AA6 /* BalooPaaji2-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EC6775B38B964A5BA3B8C105 /* BalooPaaji2-ExtraBold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,6 +38,7 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = capstone_front/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		98812631EA6643EBABCDC19B /* BalooPaaji2-Bold.ttf */ = {isa = PBXFileReference; name = "BalooPaaji2-Bold.ttf"; path = "../assets/fonts/BalooPaaji2-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		EC6775B38B964A5BA3B8C105 /* BalooPaaji2-ExtraBold.ttf */ = {isa = PBXFileReference; name = "BalooPaaji2-ExtraBold.ttf"; path = "../assets/fonts/BalooPaaji2-ExtraBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,6 +125,7 @@
 			isa = "PBXGroup";
 			children = (
 				98812631EA6643EBABCDC19B /* BalooPaaji2-Bold.ttf */,
+				EC6775B38B964A5BA3B8C105 /* BalooPaaji2-ExtraBold.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -198,6 +201,7 @@
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				C517E233B09F4958AB568BF3 /* BalooPaaji2-Bold.ttf in Resources */,
+				91CD1085827347369F708AA6 /* BalooPaaji2-ExtraBold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

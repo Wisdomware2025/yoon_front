@@ -1,61 +1,158 @@
-import { ImageBackground, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   background: {
-    width: '100%',
-    marginTop: 50,
+    backgroundColor: 'transparent',
     padding: 20,
-    display: 'flex',
-    flexDirection: 'column',
   },
-  backContainer: {
-    width: 30,
-    height: 30,
-  },
-  backButton: {
-    width: 30,
-    height: 30,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: 800,
-    marginTop: 10,
-  },
-  profileContainer: {
+
+  Container: {
     width: '100%',
-    height: 80,
+    height: 100,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
   },
-  profile: {
-    width: 40,
-    height: 40,
-    backgroundColor: '#D9D9D9',
+
+  title: {
+    fontSize: 27,
+    fontWeight: '800',
+    marginBottom: 10,
+  },
+
+  backButton: {
+    width: 25,
+    height: 25,
+    marginRight: 'auto',
+    marginTop: 5,
+    marginRight: 'auto',
+  },
+
+  profileCon: {
+    width: '100%',
+    height: 50,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+
+  profileImg: {
+    width: 45,
+    height: 45,
+    backgroundColor: 'silver',
     borderRadius: 60,
+    marginRight: 15,
   },
-  name: {
+
+  userName: {
     fontSize: 20,
-    marginLeft: 20,
-    marginBottom: 5,
     fontWeight: 500,
+    marginBottom: 5,
   },
-  divider: {
+
+  stateCon: {
+    width: '100%',
+    height: 30,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  Con: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  smallImg: {
+    width: 17,
+    height: 17,
+    opacity: 0.9,
+  },
+
+  samllText: {
+    fontSize: 12,
+    marginBottom: 5,
+    marginLeft: 5,
+    opacity: 0.9,
+  },
+
+  smallNumber: {
+    fontSize: 12,
+    marginBottom: 2,
+    marginLeft: 5,
+    opacity: 0.9,
+  },
+
+  line: {
     width: '100%',
     height: 1,
-    backgroundColor: '#D0D0D0',
+    backgroundColor: 'black',
+    opacity: 0.5,
+  },
+
+  infCon: {
+    width: '100%',
+    height: 160,
+    display: 'flex',
+    justifyContent: 'center',
+    gap: 20,
+  },
+
+  img: {
+    width: 23,
+    height: 23,
+    marginRight: 10,
+    opacity: 0.9,
+  },
+
+  text: {
+    fontSize: 15,
+    marginBottom: 5,
+    marginLeft: 5,
+    opacity: 0.9,
+  },
+
+  number: {
+    fontSize: 15,
+    marginBottom: 2,
+    marginLeft: 5,
+    opacity: 0.9,
+  },
+
+  contentCon: {
+    width: '100%',
+    height: 'auto',
+    display: 'flex',
+  },
+
+  conText: {
+    fontSize: 17,
+    opacity: 0.9,
+    lineHeight: 30,
     marginBottom: 20,
   },
-  contentContainer: {
+
+  conImg: {
     width: '100%',
+    height: 500,
+    objectFit: 'cover',
+    marginBottom: 100,
   },
-  content: {
-    fontSize: 20,
-  },
-  imgContainer: {
-    width: '100%',
-    backgroundColor: '#D9D9D9',
-    marginTop: 20,
+
+  button: {
+    position: 'absolute',
+    bottom: 50,
+    right: 20,
+    width: 110,
+    height: 45,
+    backgroundColor: '#7DCA79',
+    borderRadius: 50,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
   },
 });
 

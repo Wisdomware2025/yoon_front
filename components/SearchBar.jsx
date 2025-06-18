@@ -1,6 +1,13 @@
+import {useState} from 'react';
 import {View, TextInput, StyleSheet} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-const SearchBar = ({userType}) => {
+const SearchBar = ({userType, onSearch}) => {
+  const [keyword, setKeyword] = useState('');
+  const handleSearch = () => {
+    if (keyword.trim()) {
+      onSearch(keyword);
+    }
+  };
   const getPlaceholder = () => {
     if (userType === 'farmer') {
       return '도움을 줄 일꾼을 찾아보세요!';
@@ -10,7 +17,7 @@ const SearchBar = ({userType}) => {
   };
   return (
     <View style={styles.searchBarContainer}>
-      <Ionicons name="search" size={20} color="gray" />
+      <Ionicons name="search" size={20} color="gray" onPress={handleSearch} />
       <TextInput
         placeholder={getPlaceholder()}
         placeholderTextColor="gray"
@@ -18,6 +25,7 @@ const SearchBar = ({userType}) => {
         multiline={true}
         numberOfLines={1}
         scrollEnabled={false}
+        onChangeText={e => setKeyword(e.target.value)}
       />
     </View>
   );

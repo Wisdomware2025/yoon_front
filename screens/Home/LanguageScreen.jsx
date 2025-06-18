@@ -12,10 +12,14 @@ import BackButton from '../../components/BackButton';
 const languages = [
   {label: '한국어', code: 'ko'},
   {label: 'English', code: 'en'},
+  {label: '中国人(중국어)', code: 'jo'},
   {label: 'ภาษาไทย(태국어)', code: 'th'},
   {label: 'ភាសាខ្មែរ(캄보디아어)', code: 'km'},
   {label: 'Tiếng Việt(베트남어)', code: 'vi'},
   {label: 'Монгол хэл(몽골어)', code: 'mn'},
+  {label: "o'zbek(우즈베크어)", code: 'wo'},
+  {label: 'සිංහල(싱할라어)', code: 'si'},
+  {label: 'Bahasa Indonesia(인도네시아)', code: 'in'},
   {label: 'Myanma Bahasa(미얀마어)', code: 'my'},
   {label: 'नेपाली भाषा(네팔어)', code: 'ne'},
 ];
@@ -78,6 +82,7 @@ const styles = StyleSheet.create({
   },
   languageList: {
     marginTop: 30,
+    paddingBottom: 30,
   },
   languageItem: {
     paddingVertical: 16,

@@ -26,6 +26,7 @@ const dummyFarmerPosts = [
     likesCnt: 34,
     comments: 3,
     image: require('../../assets/images/ranking1.png'),
+    role: 'worker',
   },
   {
     _id: 2,
@@ -36,6 +37,7 @@ const dummyFarmerPosts = [
     likesCnt: 30,
     comments: 5,
     image: require('../../assets/images/ranking2.png'),
+    role: 'worker',
   },
   {
     _id: 3,
@@ -46,6 +48,7 @@ const dummyFarmerPosts = [
     likesCnt: 100,
     comments: 8,
     image: require('../../assets/images/ranking3.png'),
+    role: 'worker',
   },
 ];
 const dummyWorkerPosts = [
@@ -58,6 +61,7 @@ const dummyWorkerPosts = [
     likesCnt: 34,
     comments: 3,
     image: require('../../assets/images/ranking1.png'),
+    role: 'farmer',
   },
   {
     _id: 2,
@@ -68,6 +72,7 @@ const dummyWorkerPosts = [
     likesCnt: 30,
     comments: 5,
     image: require('../../assets/images/ranking2.png'),
+    role: 'farmer',
   },
   {
     _id: 3,
@@ -78,22 +83,18 @@ const dummyWorkerPosts = [
     likesCnt: 100,
     comments: 8,
     image: require('../../assets/images/ranking3.png'),
+    role: 'farmer',
   },
 ];
 
 const HomeMain = () => {
+  const [popularProfiles, setPopularProfiles] = useState([]);
+
   const [posts, setPosts] = useState([]);
 
   const [selectedTab, setSelectedTab] = useState('일손 찾기');
   const [selectedFilter, setSelectedFilter] = useState('최신순');
-  const rankingImages = [
-    require('../../assets/images/ranking1.png'),
-    require('../../assets/images/ranking2.png'),
-    require('../../assets/images/ranking3.png'),
-    require('../../assets/images/ranking4.png'),
-    require('../../assets/images/ranking5.png'),
-    require('../../assets/images/ranking6.png'),
-  ];
+
   //게시글 가져오기
   useEffect(() => {
     const fetchPosts = async () => {
@@ -111,7 +112,32 @@ const HomeMain = () => {
       }
     };
 
+    const fetchPopularProfiles = async () => {
+      try {
+        const role = selectedTab === '일손 찾기' ? 'worker' : 'farmer';
+        const response = await axios.get(
+          `http://172.28.2.114:5000/profile/popular/${role}`,
+        );
+        setPopularProfiles(response.data);
+      } catch (error) {
+        setPopularProfiles([
+          {
+            username: '김나혜',
+            profileImg: require('../../assets/images/ranking1.png'),
+          },
+          {
+            username: '이현석',
+            profileImg: require('../../assets/images/ranking2.png'),
+          },
+          {
+            username: '최윤정',
+            profileImg: require('../../assets/images/ranking3.png'),
+          },
+        ]);
+      }
+    };
     fetchPosts();
+    fetchPopularProfiles();
   }, [selectedTab]);
 
   //게시글 정렬시키기
@@ -125,7 +151,27 @@ const HomeMain = () => {
     }
     return 0;
   });
-
+  const handleSearch = async keyword => {
+    try {
+      const role = selectedTab === '일손 찾기' ? 'farmer' : 'worker';
+      const response = await axios.get(
+        `http://172.28.2.114:5000/search?role=${role}&keyword=${encodeURIComponent(
+          keyword,
+        )}`,
+      );
+      setPosts(response.data);
+    } catch (error) {
+      console.error('검색 중 오류 발생:', error);
+    }
+  };
+  // const profile = [...popularProfiles].map(a, b) => {
+  //   if (selectedTab === '일손 찾기') {
+  //     return a.role === 'worker';
+  //   }
+  //   else if (selectedTab === '일감 찾기') {
+  //     return a.role === 'farmer';
+  //   }
+  // });
   return (
     <View style={styles.container}>
       <AppBar />
@@ -135,7 +181,10 @@ const HomeMain = () => {
         onTabPress={setSelectedTab}
       />
 
-      <SearchBar userType={selectedTab === '일손 찾기' ? 'farmer' : 'worker'} />
+      <SearchBar
+        userType={selectedTab === '일손 찾기' ? 'farmer' : 'worker'}
+        onSearch={handleSearch}
+      />
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.rankingSection}>
@@ -145,16 +194,17 @@ const HomeMain = () => {
               : '이번 달 인기 농장주'}
           </Text>
           <View style={styles.rankingList}>
-            {(selectedTab === '일손 찾기'
-              ? ['김나혜', '이현석', '최윤정']
-              : ['김농장', '이농장', '최농장']
-            ).map((name, idx) => (
+            {popularProfiles.slice(0, 3).map((profile, idx) => (
               <View key={idx} style={styles.rankingItem}>
                 <Image
-                  source={rankingImages[idx]}
+                  source={
+                    profile.profileImg && typeof profile.profileImg === 'string'
+                      ? {uri: profile.profileImg}
+                      : profile.profileImg
+                  }
                   style={styles.rankingImage}
                 />
-                <Text style={styles.rankingName}>{name}</Text>
+                <Text style={styles.rankingName}> {profile.username} </Text>
               </View>
             ))}
           </View>
@@ -191,6 +241,7 @@ const HomeMain = () => {
               likesCnt={post.likesCnt}
               comments={post.comments}
               image={post.image}
+              role={post.role}
             />
           );
         })}
