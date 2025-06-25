@@ -12,6 +12,7 @@ import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import CheckBox from '@react-native-community/checkbox';
 import {useAuth} from '../../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = () => {
   const {login} = useAuth();
@@ -35,11 +36,18 @@ const Login = () => {
           phoneNum: phoneNum,
         },
       );
+
       console.log('로그인 성공:', response.data);
-      if (response.data.accessToken) {
+
+      const accessToken = response.data.accessToken;
+
+      if (accessToken) {
+        await AsyncStorage.setItem('accessToken', accessToken);
+        console.log('Access token 저장 완료');
+
         login();
       } else {
-        alert('로그인 실패');
+        alert('로그인 실패: 토큰이 없습니다.');
       }
     } catch (error) {
       console.error('로그인 실패:', error);
