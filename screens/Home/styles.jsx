@@ -180,6 +180,9 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.5)',
+    marginBottom: 30,
   },
 
   icon: {
@@ -213,6 +216,47 @@ const styles = StyleSheet.create({
 
   placeholderStyle: {
     fontSize: 14,
+  },
+
+  dropdown1: {
+    width: 130,
+    height: 50,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+  },
+
+  placeholderStyle1: {
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 4,
+    marginLeft: 10,
+    flex: 1,
+  },
+
+  selectedTextStyle1: {
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 4,
+    marginLeft: 10,
+    flex: 1,
+  },
+
+  Con: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 30,
+  },
+
+  text: {
+    fontSize: 22,
+    marginBottom: 7,
   },
 });
 

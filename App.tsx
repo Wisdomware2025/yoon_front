@@ -1,8 +1,21 @@
-import React from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {AuthProvider, useAuth} from './context/AuthContext';
+import AuthNavigator from './navigation/AuthNavigator';
 import BottomNavigation from './components/BottomNavigation';
+import './src/i18n';
 
-const App = () => {
-  return <BottomNavigation />;
+const RootNavigator = () => {
+  const {isLoggedIn} = useAuth();
+  return isLoggedIn ? <BottomNavigation /> : <AuthNavigator />;
 };
 
-export default App;
+export default function App() {
+  return (
+    <AuthProvider>
+      <NavigationContainer>
+        <RootNavigator />
+      </NavigationContainer>
+    </AuthProvider>
+    // <BottomNavigation />
+  );
+}

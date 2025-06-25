@@ -33,7 +33,7 @@ const PostDetailFarmer = () => {
     const fetchPosts = async () => {
       try {
         const response = await axios.get(
-          `http://172.28.2.114:5000/boards/${_Id}`,
+          `https://capstone2025-server-712956423773.europe-west1.run.app/boards/${_Id}`,
         );
         setPostData(response.data);
       } catch (error) {

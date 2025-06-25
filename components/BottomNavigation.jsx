@@ -1,6 +1,6 @@
 import {StyleSheet, View, Image} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {NavigationContainer} from '@react-navigation/native';
+// import {NavigationContainer} from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import CalendarScreen from '../screens/Calendar/CalendarScreen';
@@ -48,22 +48,22 @@ const getTabBarIcon = (route, focused, color) => {
 const BottomNavigation = () => {
   return (
     <View style={styles.container}>
-      <NavigationContainer>
-        <Tab.Navigator
-          screenOptions={({route}) => ({
-            tabBarIcon: ({focused, color}) =>
-              getTabBarIcon(route, focused, color),
-            tabBarActiveTintColor: 'rgb(109, 163, 77)',
-            tabBarInactiveTintColor: '#595959',
-            headerShown: false,
-          })}>
-          <Tab.Screen name="달력" component={CalendarScreen} />
-          <Tab.Screen name="지도" component={MapScreen} />
-          <Tab.Screen name="홈" component={HomeScreen} />
-          <Tab.Screen name="문자" component={ChatScreen} />
-          <Tab.Screen name="내 정보" component={MyPageScreen} />
-        </Tab.Navigator>
-      </NavigationContainer>
+      {/* <NavigationContainer> */}
+      <Tab.Navigator
+        screenOptions={({route}) => ({
+          tabBarIcon: ({focused, color}) =>
+            getTabBarIcon(route, focused, color),
+          tabBarActiveTintColor: 'rgb(109, 163, 77)',
+          tabBarInactiveTintColor: '#595959',
+          headerShown: false,
+        })}>
+        <Tab.Screen name="달력" component={CalendarScreen} />
+        <Tab.Screen name="지도" component={MapScreen} />
+        <Tab.Screen name="홈" component={HomeScreen} />
+        <Tab.Screen name="문자" component={ChatScreen} />
+        <Tab.Screen name="내 정보" component={MyPageScreen} />
+      </Tab.Navigator>
+      {/* </NavigationContainer> */}
     </View>
   );
 };

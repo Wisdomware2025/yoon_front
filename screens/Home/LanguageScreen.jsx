@@ -1,42 +1,66 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import BackButton from '../../components/BackButton';
+import {useTranslation} from 'react-i18next';
+import i18n from '../../src/i18n';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const languages = [
-  {label: '한국어', code: 'ko'},
-  {label: 'English', code: 'en'},
-  {label: '中国人(중국어)', code: 'jo'},
-  {label: 'ภาษาไทย(태국어)', code: 'th'},
-  {label: 'ភាសាខ្មែរ(캄보디아어)', code: 'km'},
-  {label: 'Tiếng Việt(베트남어)', code: 'vi'},
-  {label: 'Монгол хэл(몽골어)', code: 'mn'},
-  {label: "o'zbek(우즈베크어)", code: 'wo'},
-  {label: 'සිංහල(싱할라어)', code: 'si'},
-  {label: 'Bahasa Indonesia(인도네시아)', code: 'in'},
-  {label: 'Myanma Bahasa(미얀마어)', code: 'my'},
-  {label: 'नेपाली भाषा(네팔어)', code: 'ne'},
+  {labelKey: '한국어', code: 'ko'},
+  {labelKey: 'English', code: 'en'},
+  {labelKey: '中国人', code: 'jh'},
+  {labelKey: 'ภาษาไทย', code: 'th'},
+  {labelKey: 'ភាសាខ្មែរ', code: 'km'},
+  {labelKey: 'Tiếng Việt', code: 'vi'},
+  {labelKey: 'Монгол хэл', code: 'mn'},
+  {labelKey: "o'zbek", code: 'uz'},
+  {labelKey: 'සිංහල', code: 'si'},
+  {labelKey: 'Bahasa Indonesia', code: 'id'},
+  {labelKey: 'Myanma Bahasa', code: 'my'},
+  {labelKey: 'नेपाली भाषा', code: 'ne'},
 ];
 
 const LanguageScreen = () => {
-  const [selectedLanguage, setSelectedLanguage] = useState('ko');
+  const {t} = useTranslation();
+  const navigation = useNavigation();
+  const [selectedLanguage, setSelectedLanguage] = useState(
+    i18n.language || 'ko',
+  );
 
-  const handleLanguagePress = code => {
-    setSelectedLanguage(code);
-    // TODO: 선택된 언어로 앱 언어 변경하는 로직 추가
+  // 앱 시작 시 저장된 언어 불러오기
+  useEffect(() => {
+    const loadLanguage = async () => {
+      const savedLang = await AsyncStorage.getItem('appLanguage');
+      if (savedLang && savedLang !== i18n.language) {
+        i18n.changeLanguage(savedLang);
+        setSelectedLanguage(savedLang);
+      }
+    };
+    loadLanguage();
+  }, []);
+
+  const handleLanguagePress = async code => {
+    try {
+      await i18n.changeLanguage(code);
+      setSelectedLanguage(code);
+      await AsyncStorage.setItem('appLanguage', code);
+    } catch (err) {
+      console.error('언어 변경 오류:', err);
+    }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <BackButton />
-        <Text style={styles.languageTitle}>언어 설정</Text>
+        <Text style={styles.languageTitle}>{t('languageSetting')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.languageList}>
@@ -50,7 +74,7 @@ const LanguageScreen = () => {
                 styles.languageText,
                 selectedLanguage === lang.code && styles.selectedText,
               ]}>
-              {lang.label}
+              {lang.labelKey}
             </Text>
           </TouchableOpacity>
         ))}

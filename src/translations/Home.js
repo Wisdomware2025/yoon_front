@@ -1,0 +1,15 @@
+export const homeTexts = {
+  languageSetting: '언어 설정',
+  'lang.ko': '한국어',
+  'lang.en': '영어',
+  'lang.jh': '중국어',
+  'lang.th': '태국어',
+  'lang.km': '캄보디아어',
+  'lang.vi': '베트남어',
+  'lang.mn': '몽골어',
+  'lang.uz': '우즈베크어',
+  'lang.si': '싱할라어',
+  'lang.id': '인도네시아어',
+  'lang.my': '미얀마어',
+  'lang.ne': '네팔어',
+};

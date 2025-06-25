@@ -3,7 +3,7 @@ import {useNavigation} from '@react-navigation/native';
 const WriteButton = () => {
   const navigation = useNavigation();
   const handleNewPostFarmerPress = () => {
-    navigation.navigate('NewPostFarmer');
+    navigation.navigate('NewPost');
   };
   return (
     <TouchableOpacity

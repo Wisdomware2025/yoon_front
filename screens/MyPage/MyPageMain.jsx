@@ -4,6 +4,8 @@ import axios from 'axios';
 import {useNavigation} from '@react-navigation/native';
 import styles from './style';
 
+const accessToken =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODRiNWU5ZGIyNGMwZDMwNzE3MDRhMmUiLCJ1c2VybmFtZSI6IuydtO2YhOyEnSIsInBob25lTnVtIjoiMDEwOTY2NzM4OTQiLCJpYXQiOjE3NTA3NzkxNjAsImV4cCI6MTc1MDg2NTU2MH0.6pNrfWg2xyH-xsMtEcdkaWSjhbHJVHRRBR6voCWmiuQ';
 const MyPageItem = ({image, title}) => {
   return (
     <TouchableOpacity style={styles.container3}>
@@ -45,6 +47,11 @@ const MyPage = () => {
       try {
         const response = await axios.get(
           `http://172.28.2.114:5000/profile/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          },
         );
         setProfile(response.data);
       } catch (error) {

@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {View, TextInput, StyleSheet} from 'react-native';
+import {View, TextInput, StyleSheet, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 const SearchBar = ({userType, onSearch}) => {
   const [keyword, setKeyword] = useState('');
@@ -13,11 +13,16 @@ const SearchBar = ({userType, onSearch}) => {
       return '도움을 줄 일꾼을 찾아보세요!';
     } else if (userType === 'worker') {
       return '원하는 일자리를 검색해보세요!';
+    } else if (userType === 'user') {
+      return '함께할 사람을 찾아보세요!';
     }
   };
   return (
     <View style={styles.searchBarContainer}>
-      <Ionicons name="search" size={20} color="gray" onPress={handleSearch} />
+      <TouchableOpacity onPress={handleSearch}>
+        <Ionicons name="search" size={20} color="gray" />
+      </TouchableOpacity>
+
       <TextInput
         placeholder={getPlaceholder()}
         placeholderTextColor="gray"
@@ -25,7 +30,9 @@ const SearchBar = ({userType, onSearch}) => {
         multiline={true}
         numberOfLines={1}
         scrollEnabled={false}
-        onChangeText={e => setKeyword(e.target.value)}
+        onChangeText={text => setKeyword(text)}
+        onSubmitEditing={handleSearch}
+        value={keyword}
       />
     </View>
   );

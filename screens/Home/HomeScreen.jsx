@@ -6,8 +6,7 @@ import HomeMain from './HomeMain';
 import LanguageScreen from './LanguageScreen';
 import PostDetailFarmer from './PostDetail/PostDetailFarmer/PostDetailFarmer';
 import PostDetailWorker from './PostDetail/PostDetailWorker/PostDetailWorker';
-import NewPostFarmer from './NewPostFarmer/NewPostFarmer';
-import NewPostWorker from './NewPostWorker/NewPostWorker';
+import NewPost from './NewPost';
 import AlarmScreen from './AlarmScreen';
 const Stack = createStackNavigator();
 
@@ -20,8 +19,7 @@ const HomeScreen = () => {
       <Stack.Screen name="PostDetailWorker" component={PostDetailWorker} />
       <Stack.Screen name="Language" component={LanguageScreen} />
       <Stack.Screen name="Alarm" component={AlarmScreen} />
-      <Stack.Screen name="NewPostFarmer" component={NewPostFarmer} />
-      <Stack.Screen name="NewPostWorker" component={NewPostWorker} />
+      <Stack.Screen name="NewPost" component={NewPost} />
     </Stack.Navigator>
   );
 };
