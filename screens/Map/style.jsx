@@ -1,0 +1,77 @@
+import {StyleSheet, Platform, Dimensions} from 'react-native';
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    display: 'flex',
+  },
+  mapContainer: {
+    flex: 1,
+  },
+  map: {
+    height: '100%',
+    width: '100%',
+  },
+  autocompleteContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 50,
+    zIndex: 1,
+  },
+  title: {
+    fontSize: 25,
+    fontWeight: 500,
+    zIndex: 1,
+  },
+  textInput: {
+    width: '90%',
+    height: 45,
+    padding: 10,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    elevation: 5,
+  },
+  listView: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    marginTop: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
+  },
+  buttonContainer: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    gap: 15,
+    zIndex: 1,
+    marginTop: 120,
+  },
+  button: {
+    width: 75,
+    height: 40,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    borderRadius: 80,
+    marginRight: 5,
+    elevation: 5,
+  },
+  buttonText: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 3,
+  },
+});

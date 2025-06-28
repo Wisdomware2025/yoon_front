@@ -8,8 +8,17 @@
   "lang.vi": "ဗီယက်နမ်",
   "lang.mn": "မွန်ဂိုလီးယား",
   "lang.uz": "ဥဇဘက်",
-  "lang.si": "ဆင်ဟာလ",
+  "lang.si": "သင်ဟာလ",
   "lang.id": "အင်ဒိုနီးရှား",
   "lang.my": "မြန်မာ",
-  "lang.ne": "နီပေါ"
+  "lang.ne": "နီပေါ",
+  "workerFind": "အလုပ်သမားရှာဖွေခြင်း",
+  "Latest": "နောက်ဆုံးရ",
+  "Popular": "လူကြိုက်များသော",
+  "Recommended": "အကြံပြုထားသော",
+  "findingWork": "အလုပ်ရှာဖွေခြင်း",
+  "personFind": "လူရှာဖွေခြင်း",
+  "popualrMonthWorker": "ယခုလအတွက်လူကြိုက်များသောအလုပ်သမား",
+  "popualrMonthFarmer": "ယခုလအတွက်လူကြိုက်များသောလယ်သမား",
+  "searchResultNotFound": "ရှာဖွေရေးရလဒ်မရှိပါ"
 }

@@ -11,5 +11,14 @@
   "lang.si": "Tiếng Sinhala",
   "lang.id": "Tiếng Indonesia",
   "lang.my": "Tiếng Myanmar",
-  "lang.ne": "Tiếng Nepal"
+  "lang.ne": "Tiếng Nepal",
+  "workerFind": "Tìm việc làm",
+  "Latest": "Mới nhất",
+  "Popular": "Phổ biến",
+  "Recommended": "Được đề xuất",
+  "findingWork": "Tìm công việc",
+  "personFind": "Tìm người",
+  "popualrMonthWorker": "Người làm thêm được yêu thích nhất trong tháng",
+  "popualrMonthFarmer": "Chủ trang trại được yêu thích nhất trong tháng",
+  "searchResultNotFound": "Không tìm thấy kết quả."
 }

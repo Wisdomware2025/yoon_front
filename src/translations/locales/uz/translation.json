@@ -3,7 +3,7 @@
   "lang.ko": "Koreys tili",
   "lang.en": "Ingliz tili",
   "lang.jh": "Xitoy tili",
-  "lang.th": "Tay tili",
+  "lang.th": "Tailand tili",
   "lang.km": "Kambodja tili",
   "lang.vi": "Vetnam tili",
   "lang.mn": "Mo‘g‘ul tili",
@@ -11,5 +11,14 @@
   "lang.si": "Singal tili",
   "lang.id": "Indoneziya tili",
   "lang.my": "Myanma tili",
-  "lang.ne": "Nepal tili"
+  "lang.ne": "Nepal tili",
+  "workerFind": "Ishchi topish",
+  "Latest": "Eng yangi",
+  "Popular": "Ommabop",
+  "Recommended": "Tavsiya etilgan",
+  "findingWork": "Ish topish",
+  "personFind": "Odamlarni topish",
+  "popualrMonthWorker": "Oyning mashhur ishchisi",
+  "popualrMonthFarmer": "Oyning mashhur fermeri",
+  "searchResultNotFound": "Qidiruv natijalari topilmadi."
 }

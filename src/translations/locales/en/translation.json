@@ -11,5 +11,14 @@
   "lang.si": "Sinhala",
   "lang.id": "Indonesian",
   "lang.my": "Burmese",
-  "lang.ne": "Nepali"
+  "lang.ne": "Nepali",
+  "workerFind": "Find Workers",
+  "Latest": "Latest",
+  "Popular": "Popular",
+  "Recommended": "Recommended",
+  "findingWork": "Finding Work",
+  "personFind": "Find People",
+  "popualrMonthWorker": "Popular Worker of the Month",
+  "popualrMonthFarmer": "Popular Farmer of the Month",
+  "searchResultNotFound": "No search results found."
 }

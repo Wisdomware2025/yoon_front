@@ -8,8 +8,17 @@
   "lang.vi": "ភាសាវៀតណាម",
   "lang.mn": "ភាសាម៉ុងហ្គោលី",
   "lang.uz": "ភាសាអ៊ូសបេគីស្ថាន",
-  "lang.si": "ភាសាសិង្ហបុរី",
+  "lang.si": "ភាសាស្រីលង្កា",
   "lang.id": "ភាសាឥណ្ឌូនេស៊ី",
   "lang.my": "ភាសាមីយ៉ាន់ម៉ា",
-  "lang.ne": "ភាសានេប៉ាល់"
+  "lang.ne": "ភាសានេប៉ាល់",
+  "workerFind": "ស្វែងរកការងារ",
+  "Latest": "ថ្មីបំផុត",
+  "Popular": "ពេញនិយម",
+  "Recommended": "បានណែនាំ",
+  "findingWork": "ស្វែងរកការងារ",
+  "personFind": "ស្វែងរកមនុស្ស",
+  "popualrMonthWorker": "កម្មករពេញនិយមនៃខែ",
+  "popualrMonthFarmer": "ម្ចាស់ចំការពេញនិយមនៃខែ",
+  "searchResultNotFound": "រកមិនឃើញលទ្ធផល។"
 }

@@ -3,9 +3,8 @@ import {View, Text, Image, TouchableOpacity, ScrollView} from 'react-native';
 import axios from 'axios';
 import {useNavigation} from '@react-navigation/native';
 import styles from './style';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const accessToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODRiNWU5ZGIyNGMwZDMwNzE3MDRhMmUiLCJ1c2VybmFtZSI6IuydtO2YhOyEnSIsInBob25lTnVtIjoiMDEwOTY2NzM4OTQiLCJpYXQiOjE3NTA3NzkxNjAsImV4cCI6MTc1MDg2NTU2MH0.6pNrfWg2xyH-xsMtEcdkaWSjhbHJVHRRBR6voCWmiuQ';
 const MyPageItem = ({image, title}) => {
   return (
     <TouchableOpacity style={styles.container3}>
@@ -45,8 +44,11 @@ const MyPage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        // const userId = await AsyncStorage.getItem('userId');
+        // console.log('userId:', userId);
+        const accessToken = await AsyncStorage.getItem('accessToken');
         const response = await axios.get(
-          `http://172.28.2.114:5000/profile/${userId}`,
+          `https://ilson-924833727346.asia-northeast3.run.app/profile/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,

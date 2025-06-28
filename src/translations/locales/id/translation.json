@@ -7,9 +7,18 @@
   "lang.km": "Kamboja",
   "lang.vi": "Vietnam",
   "lang.mn": "Mongolia",
-  "lang.uz": "Uzbekistan",
+  "lang.uz": "Uzbek",
   "lang.si": "Sinhala",
   "lang.id": "Indonesia",
   "lang.my": "Myanmar",
-  "lang.ne": "Nepal"
+  "lang.ne": "Nepal",
+  "workerFind": "Mencari Pekerjaan",
+  "Latest": "Terbaru",
+  "Popular": "Populer",
+  "Recommended": "Direkomendasikan",
+  "findingWork": "Mencari Pekerjaan",
+  "personFind": "Mencari Orang",
+  "popualrMonthWorker": "Pekerja Paruh Waktu Populer Bulan Ini",
+  "popualrMonthFarmer": "Pemilik Ladang Populer Bulan Ini",
+  "searchResultNotFound": "Hasil Pencarian Tidak Ditemukan"
 }

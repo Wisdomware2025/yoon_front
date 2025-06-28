@@ -10,6 +10,15 @@
   "lang.uz": "Uzbek",
   "lang.si": "Sinhala",
   "lang.id": "Indonesian",
-  "lang.my": "Burmese",
-  "lang.ne": "Nepali"
+  "lang.my": "Myanmar",
+  "lang.ne": "Nepali",
+  "workerFind": "Find Work",
+  "Latest": "Latest",
+  "Popular": "Popular",
+  "Recommended": "Recommended",
+  "findingWork": "Finding Work",
+  "personFind": "Find Person",
+  "popualrMonthWorker": "Popular Worker of the Month",
+  "popualrMonthFarmer": "Popular Farmer of the Month",
+  "searchResultNotFound": "No search results found."
 }

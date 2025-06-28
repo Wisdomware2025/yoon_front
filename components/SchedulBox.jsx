@@ -6,12 +6,14 @@ dayjs.locale('ko');
 dayjs.extend(relativeTime);
 
 const SchedulBox = ({schedule}) => {
-  if (!schedule || !schedule.date) return null;
+  if (!schedule || !schedule.startDate) return null;
 
   return (
     <View style={styles.infoBox}>
       <View style={styles.verticalText}>
-        <Text style={styles.dayLeftText}>{dayjs(schedule.date).fromNow()}</Text>
+        <Text style={styles.dayLeftText}>
+          {dayjs(schedule.startDate).fromNow()}
+        </Text>
         <Text style={styles.dayLeftMiniText}>남음</Text>
       </View>
       <View style={styles.detailContainer}>

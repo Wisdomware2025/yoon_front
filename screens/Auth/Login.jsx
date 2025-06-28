@@ -13,7 +13,34 @@ import axios from 'axios';
 import CheckBox from '@react-native-community/checkbox';
 import {useAuth} from '../../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import messaging from '@react-native-firebase/messaging';
+// import jwt_decode from 'jwt-decode';
 
+const getFcmToken = async () => {
+  try {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      const fcmToken = await messaging().getToken();
+      if (fcmToken) {
+        console.log('fcm token:', fcmToken);
+        return fcmToken;
+      } else {
+        console.log('fcm token을 받아오지 못함');
+        return null;
+      }
+    } else {
+      console.log('FCM 권한이 허용되지 않았습니다.');
+      return null;
+    }
+  } catch (error) {
+    console.error('FCM 토큰을 발급 실패', error);
+    return null;
+  }
+};
 const Login = () => {
   const {login} = useAuth();
   const [error, setError] = useState('');
@@ -21,13 +48,15 @@ const Login = () => {
 
   const [phoneNum, setPhoneNum] = useState('');
   const [code, setCode] = useState('');
-  const [isSelected, setSelection] = useState(false);
+  // const [isSelected, setSelection] = useState(false);
   const navigation = useNavigation();
 
   const handleLanguagePress = () => {
     navigation.navigate('Language');
   };
-
+  const handleJoinPress = () => {
+    navigation.navigate('Join');
+  };
   const handleLogin = async () => {
     try {
       const response = await axios.post(
@@ -38,16 +67,64 @@ const Login = () => {
       );
 
       console.log('로그인 성공:', response.data);
+      const token = response.data.token;
+      // await AsyncStorage.setItem('accessToken', token);
 
+      // const decodedToken = jwt_decode(token);
+      // const userId = decodedToken.userId;
+      // await AsyncStorage.setItem('userId', userId);
+      console.log('토큰:', token);
       const accessToken = response.data.accessToken;
+      // const userId = response.data.userId;
+      // await AsyncStorage.setItem('userId', userId);
+      // console.log('userId:', userId);
+      // const refreshToken = response.data.refreshToken;
 
       if (accessToken) {
         await AsyncStorage.setItem('accessToken', accessToken);
+        // await AsyncStorage.setItem('fcmToken', fcmToken);
+        // await AsyncStorage.setItem('refreshToken', refreshToken);
+        // console.log('fcm token 저장 완료: ', fcmToken);
+        // const userId = response.data.userId;
         console.log('Access token 저장 완료');
+        // console.log('Refresh token 저장 완료');
+        // const userId = response.data.userId;
 
+        // console.log('userId:', userId);
+        console.log('accessToken:', accessToken);
         login();
+        try {
+          const fcmToken = await getFcmToken();
+          const fcmTokenResponse = await axios.post(
+            'https://ilson-924833727346.asia-northeast3.run.app/auth/get-fcmToken',
+            {fcmToken: fcmToken},
+
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${accessToken}`,
+              },
+            },
+          );
+          console.log('fcmToken:', fcmToken);
+          // const userId = response.data.userId;
+          // await AsyncStorage.setItem('userId', userId);
+          // console.log('userId:', userId);
+          // await AsyncStorage.setItem('userId', response.data.user._id);
+          // await AsyncStorage.setItem('accessToken', response.data.token);
+          // const fcmToken = fcmTokenResponse.data.fcmToken;
+          // await AsyncStorage.setItem('fcmToken', fcmToken);
+          // console.log('fcm token 저장 완료: ', fcmToken);
+        } catch (error) {
+          if (error.response) {
+            console.error('에러 응답:', error.response.data);
+          }
+
+          console.error('FCM 토큰 저장 실패:', error);
+        }
       } else {
-        alert('로그인 실패: 토큰이 없습니다.');
+        console.error('로그인 실패: refreshToken이 없습니다.');
+        alert('로그인에 실패했습니다. 다시 시도해주세요.');
       }
     } catch (error) {
       console.error('로그인 실패:', error);
@@ -120,10 +197,12 @@ const Login = () => {
           />
         </TouchableOpacity>
       </View>
-      <View style={styles.container}>
+      <View style={styles.logoContainer}>
         <Text style={styles.logoText}>Ilson</Text>
+      </View>
+      <View style={styles.container}>
+        <Text style={styles.contentText}>전화번호</Text>
         <View style={styles.content}>
-          <Text style={styles.contentText}>전화번호</Text>
           <TextInput
             style={styles.phoneNumber}
             placeholder="010-1234-5678"
@@ -135,12 +214,14 @@ const Login = () => {
             keyboardType="phone-pad"
           />
           {error !== '' && <Text style={styles.errorText}>{error}</Text>}
-          <Pressable onPress={handleSendCode}>
+          <Pressable
+            onPress={handleSendCode}
+            style={styles.certificationButton}>
             <Text style={styles.certification}>전송</Text>
           </Pressable>
         </View>
+        <Text style={styles.contentTexts}>인증번호 입력</Text>
         <View style={styles.content}>
-          <Text style={styles.contentText}>인증번호 입력</Text>
           <TextInput
             style={styles.phoneNumber}
             placeholder="인증번호 입력"
@@ -154,19 +235,22 @@ const Login = () => {
           {codeError !== '' && (
             <Text style={styles.errorText}>{codeError}</Text>
           )}
-          <Pressable onPress={handleVerifyCode}>
+          <Pressable
+            onPress={handleVerifyCode}
+            style={styles.certificationButton}>
             <Text style={styles.certification}>확인</Text>
           </Pressable>
         </View>
-        <View style={styles.skipcontainer}>
-          <CheckBox value={isSelected} onValueChange={setSelection} />
-          <Text style={styles.skipText}>다음부터 로그인 건너뛰기</Text>
-        </View>
-        <View style={styles.footer}>
-          <Pressable style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>로그인</Text>
+      </View>
+      <View style={styles.footer}>
+        <Pressable style={styles.loginButton} onPress={handleLogin}>
+          <Text style={styles.loginButtonText}>로그인</Text>
+        </Pressable>
+        <View style={styles.loginTexts}>
+          <Text style={styles.loginText}>계정이 없으신가요?</Text>
+          <Pressable onPress={handleJoinPress}>
+            <Text style={styles.loginLink}>계정 만들기</Text>
           </Pressable>
-          <Text>계정이 없으신가요? 계정만들기</Text>
         </View>
       </View>
     </View>
@@ -174,7 +258,108 @@ const Login = () => {
 };
 
 const styles = StyleSheet.create({
-  // 기능부터
+  header: {
+    widht: '100%',
+    height: 100,
+
+    justifyContent: 'center',
+  },
+  Language: {
+    width: 30,
+    height: 30,
+    marginLeft: 280,
+  },
+  logoContainer: {
+    width: '100%',
+    height: 100,
+    alignItems: 'center',
+
+    overflow: 'visible',
+  },
+  logoText: {
+    fontFamily: 'BalooPaaji2-Bold',
+    fontSize: 50,
+    lineHeight: 55,
+    textAlign: 'center',
+    transform: [{translateY: -10}],
+  },
+  container: {
+    width: '100%',
+    height: 350,
+    // alignItems: 'center',
+    // justifyContent: 'center',
+  },
+  footer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contentText: {
+    fontSize: 16,
+    marginLeft: 30,
+    marginTop: 30,
+  },
+  contentTexts: {
+    fontSize: 16,
+    marginLeft: 30,
+    marginTop: 50,
+  },
+  loginButton: {
+    backgroundColor: '#7DCA79',
+    width: '90%',
+    height: 50,
+    alignItems: 'center',
+
+    justifyContent: 'center',
+    borderRadius: 7,
+    // marginBottom: 15,
+    marginBottom: 18,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  content: {
+    flexDirection: 'row',
+
+    marginLeft: 30,
+  },
+  phoneNumber: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.2)',
+    width: 210,
+    paddingLeft: 15,
+  },
+
+  certificationButton: {
+    backgroundColor: 'rgba(125, 202, 121, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 60,
+    height: 40,
+    borderRadius: 5,
+    marginLeft: 23,
+    marginTop: 5,
+  },
+
+  certification: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  loginTexts: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loginText: {
+    fontSize: 14,
+  },
+  loginLink: {
+    fontSize: 16,
+    color: '#285EFF',
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
 });
 
 export default Login;

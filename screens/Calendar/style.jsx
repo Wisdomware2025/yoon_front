@@ -4,6 +4,7 @@ const styles = StyleSheet.create({
   background: {
     backgroundColor: 'white',
     padding: 20,
+    display: 'flex',
   },
 
   Container: {
@@ -80,8 +81,12 @@ const styles = StyleSheet.create({
   iconButton: {
     width: 40,
     height: 40,
+    display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.5)',
+    marginBottom: 30,
   },
 
   icon: {
@@ -155,6 +160,56 @@ const styles = StyleSheet.create({
 
   placeholderStyle: {
     fontSize: 14,
+  },
+
+  box1: {
+    width: '100%',
+    height: 100,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  box2: {
+    width: 150,
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+
+  box3: {
+    width: 50,
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  rightimg: {
+    width: 20,
+    height: 20,
+  },
+
+  touch: {
+    width: '100%',
+    height: 40,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  text1: {
+    fontSize: 20,
+    fontweight: 500,
+  },
+
+  line: {
+    width: '80%',
+    height: 1,
+    backgroundColor: 'black',
+    opacity: 0.5,
   },
 });
 

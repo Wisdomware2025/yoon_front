@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, use} from 'react';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import dayjs from 'dayjs';
 import {
@@ -16,10 +16,11 @@ import 'dayjs/locale/ko';
 import axios from 'axios';
 import 'dayjs/locale/ko';
 import SchedulBox from '../../components/SchedulBox';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+dayjs.extend(isSameOrBefore);
 dayjs.locale('ko');
-const accessToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODRiNWU5ZGIyNGMwZDMwNzE3MDRhMmUiLCJ1c2VybmFtZSI6IuydtO2YhOyEnSIsInBob25lTnVtIjoiMDEwOTY2NzM4OTQiLCJpYXQiOjE3NTA4MzU0MzIsImV4cCI6MTc1MDkyMTgzMn0.WS3zf0wrGBOi3LVPOZx4DfKk_M6tih6EG1RvXFBVS5k';
+
 LocaleConfig.locales['ko'] = {
   monthNames: [...Array(12)].map((_, i) => `${i + 1}월`),
   monthNamesShort: [...Array(12)].map((_, i) => `${i + 1}월`),
@@ -50,17 +51,19 @@ const today = dayjs().format('YYYY-MM-DD');
 
 const CalendarMain = () => {
   const navigation = useNavigation();
-  const [schedules, setSchedules] = useState({});
+  const [schedules, setSchedules] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
-  const [recentSchedule, setRecentSchedule] = useState(null);
+  const [recentSchedule, setRecentSchedule] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const fetchAllSchedules = async () => {
     //모든 스케줄 불러오기
     try {
+      const accessToken = await AsyncStorage.getItem('accessToken');
       const endpoint =
         'https://ilson-924833727346.asia-northeast3.run.app/schedules';
+      // `https://ilson-924833727346.asia-northeast3.run.app/schedules/${id}`;
       const response = await axios.get(endpoint, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -68,7 +71,16 @@ const CalendarMain = () => {
       });
 
       setSchedules(response.data);
+
+      // markedDates = schedules;
+      console.log('불러오는 데이터:', response.data);
+      console.log('불러오는 데이터2:', JSON.stringify(response.data, null, 2));
     } catch (error) {
+      if (error.response) {
+        console.error('서버 응답 오류:', error.response.data);
+      } else {
+        console.error('요청 실패:', error.message);
+      }
       console.error('모든 일정있는 스케줄 불러오기 실패:', error);
     }
   };
@@ -76,8 +88,10 @@ const CalendarMain = () => {
   const fetchRecentSchedule = async () => {
     //상단 스케줄 불러오기
     try {
+      const accessToken = await AsyncStorage.getItem('accessToken');
       const endpoint =
         'https://ilson-924833727346.asia-northeast3.run.app/schedules/recent';
+      // `https://ilson-924833727346.asia-northeast3.run.app/schedules/recent/${id}`;
       const response = await axios.get(endpoint, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -86,12 +100,13 @@ const CalendarMain = () => {
       console.log('불러온 recentSchedule:', response.data);
 
       setRecentSchedule(response.data);
-
-      // const response = await axios.get(
-      //   'https://ilson-924833727346.asia-northeast3.run.app/schedules/recent',
-      // );
-      setRecentSchedule(response.data);
+      console.log('받아온 recentSchedule:', response.data);
     } catch (error) {
+      if (error.response) {
+        console.error('서버 응답 오류:', error.response.data);
+      } else {
+        console.error('요청 실패:', error.message);
+      }
       console.error(error);
     }
   };
@@ -99,17 +114,22 @@ const CalendarMain = () => {
   const fetchScheduleByDate = async date => {
     // 선택된 날짜 스케줄 불러오기
     try {
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      // const endpoint = `https://ilson-924833727346.asia-northeast3.run.app/schedules/${date._id}`;
       const endpoint = `https://ilson-924833727346.asia-northeast3.run.app/schedules/${date}`;
       const response = await axios.get(endpoint, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      // const response = await axios.get(
-      //   `https://ilson-924833727346.asia-northeast3.run.app/schedules/${date}`,
-      // );
+
       setSelectedSchedule(response.data);
     } catch (error) {
+      if (error.response) {
+        console.error('서버 응답 오류:', error.response.data);
+      } else {
+        console.error('요청 실패:', error.message);
+      }
       setSelectedSchedule(null);
       console.error(error);
     }
@@ -142,26 +162,55 @@ const CalendarMain = () => {
     navigation.navigate('NewSchedule', {selectedDate});
   };
 
-  const onPressEditSchedule = () => {
+  //선택된 날짜 일정 수정
+  const onPressEditSchedule = async () => {
     setIsModalVisible(false);
-    // navigation.navigate('EditSchedule', {
-    //   date: selectedDate.dateString,
-    //   schedule: selectedSchedule,
-    // });
+    try {
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      const endpoint = `https://ilson-924833727346.asia-northeast3.run.app/schedules/${selectedDate.id}`;
+
+      const updatedData = {
+        startDate: selectedSchedule.startDate,
+        endDate: selectedSchedule.endDate,
+        startTime: selectedSchedule.startTime,
+        endTime: selectedSchedule.endTime,
+        location: selectedSchedule.location,
+        work: selectedSchedule.work,
+        workers: selectedSchedule.workers,
+        chargeType: selectedSchedule.chargeType,
+        charge: selectedSchedule.charge,
+      };
+
+      const response = await axios.put(endpoint, updatedData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      setSelectedSchedule(response.data);
+      fetchAllSchedules();
+      navigation.navigate('NewSchedule', {
+        selectedDate: selectedDate,
+        schedule: response.data,
+      });
+      console.log('일정 수정 성공:', response.data);
+    } catch (error) {
+      console.error('일정 수정 실패:', error);
+    }
   };
 
   const onPressDeleteSchedule = async () => {
-    // 선택된 날짜의 스케줄 삭제
     try {
-      const endpoint = `https://ilson-924833727346.asia-northeast3.run.app/schedules/${selectedDate.dateString}`;
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      const endpoint = `https://ilson-924833727346.asia-northeast3.run.app/schedules/${selectedDate.id}`;
       const response = await axios.delete(endpoint, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
         },
       });
-      // await axios.delete(
-      //   `https://ilson-924833727346.asia-northeast3.run.app/schedules/${selectedDate.dateString}`,
-      // );
+
       fetchAllSchedules();
       setIsModalVisible(false);
     } catch (error) {
@@ -169,23 +218,45 @@ const CalendarMain = () => {
     }
   };
 
-  const markedDates = Object.fromEntries(
-    Object.keys(schedules).map(date => [
-      date,
-      {
+  // const markedDates = Object.fromEntries(
+  //   Object.values(schedules).map(item => {
+  //     const formattedDate = dayjs(item.date).format('YYYY-MM-DD');
+  //     return [
+  //       formattedDate,
+  //       {
+  //         customStyles: {
+  //           container: {backgroundColor: '#FFDCDC'},
+
+  //           borderRadius: 4,
+  //           paddingHorizontal: 4,
+  //           marginTop: 2,
+  //         },
+  //       },
+  //     ];
+  //   }),
+  // );
+  const markedDates = schedules.reduce((acc, item) => {
+    const start = dayjs(item.startDate);
+    const end = dayjs(item.endDate);
+    let current = start;
+
+    while (current.isSameOrBefore(end, 'day')) {
+      const formattedDate = current.format('YYYY-MM-DD');
+      acc[formattedDate] = {
         customStyles: {
-          container: {backgroundColor: '#7DCA79'},
-          text: {color: '#000'},
+          container: {backgroundColor: '#FFDCDC'},
+          borderRadius: 4,
+          paddingHorizontal: 4,
+          marginTop: 2,
         },
-      },
-    ]),
-  );
-  // markedDates[today] = {
-  //   customStyles: {
-  //     container: {backgroundColor: '#7DCA79'},
-  //     text: {color: 'white'},
-  //   },
-  // };
+      };
+      current = current.add(1, 'day');
+    }
+
+    return acc;
+  }, {});
+
+  console.log('markedDates:', markedDates);
 
   return (
     <View style={styles.container}>
@@ -284,7 +355,68 @@ const CalendarMain = () => {
             </View>
 
             {selectedSchedule ? (
-              <View style={styles.modalMainFull}></View>
+              <View style={styles.modalMainFull}>
+                <View style={styles.modalMainContent}>
+                  <View style={styles.iconWrapper}>
+                    <Image
+                      source={require('../../assets/icons/Date.png')}
+                      style={styles.modalMaincontentIcon}
+                    />
+                  </View>
+                  <Text style={styles.modalMainContentText}>
+                    {/* 4월 8일 ~ 4월 11일 */}
+                    {selectedSchedule.startDate} ~{selectedSchedule.endDate}
+                  </Text>
+                </View>
+                <View style={styles.modalMainContent}>
+                  <View style={styles.iconWrapper}>
+                    <Image
+                      source={require('../../assets/icons/Time.png')}
+                      style={styles.modalMaincontentIcon}
+                    />
+                  </View>
+                  <Text style={styles.modalMainContentText}>
+                    {/* 오전 8시 ~ 오전 11시 */}
+                    {selectedSchedule.startTime} ~ {selectedSchedule.endTime}
+                  </Text>
+                </View>
+                <View style={styles.modalMainContent}>
+                  <View style={styles.iconWrapper}>
+                    <Image
+                      source={require('../../assets/icons/Witch.png')}
+                      style={styles.modalMaincontentIcon}
+                    />
+                  </View>
+                  <Text style={styles.modalMainContentText}>
+                    {selectedSchedule.location} {selectedSchedule.work}
+                  </Text>
+                </View>
+                <View style={styles.modalMainContent}>
+                  <View style={styles.iconWrapper}>
+                    <Image
+                      source={require('../../assets/icons/User.png')}
+                      style={styles.modalMaincontentIcon}
+                    />
+                  </View>
+                  <Text style={styles.modalMainContentText}>
+                    {selectedSchedule.workers}
+                    {/* 최다이애나, 응우옌, 싱하오 */}
+                  </Text>
+                </View>
+                <View style={styles.modalMainContent}>
+                  <View style={styles.iconWrapper}>
+                    <Image
+                      source={require('../../assets/icons/Money.png')}
+                      style={styles.modalMaincontentIcon}
+                    />
+                  </View>
+                  <Text style={styles.modalMainContentText}>
+                    {' '}
+                    {/* 시급 10,000원*/} {selectedSchedule.chargeType}
+                    {selectedSchedule.charge}
+                  </Text>
+                </View>
+              </View>
             ) : (
               <View style={styles.modalMain}>
                 <Text style={styles.modalMainText}>일정이 없습니다.</Text>
@@ -369,7 +501,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 35,
     height: 35,
-    // alignSelf: 'center',
   },
   modalWrapper: {
     flex: 1,
@@ -414,7 +545,7 @@ const styles = StyleSheet.create({
   },
   modalFooter: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    // justifyContent: 'space-around',
     paddingHorizontal: 10,
   },
 
@@ -425,6 +556,7 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 10,
   },
   plusButtonText: {
     color: '#fff',
@@ -437,6 +569,7 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 85,
   },
   closeButtonText: {
     color: '#000',
@@ -469,10 +602,6 @@ const styles = StyleSheet.create({
   modalMainContentText: {
     fontSize: 16,
   },
-
-  // modalFooter: {
-  //   flexDirection: 'row',
-  // },
 });
 
 export default CalendarMain;

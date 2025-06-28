@@ -5,11 +5,11 @@ const axios = require('axios');
 const targetLangs = [
   // 'en',
   // 'jh',
-  'th',
+  // 'th',
   // 'km',
   // 'vi',
   // 'mn',
-  // 'uz',
+  'uz',
   // 'si',
   // 'id',
   // 'my',

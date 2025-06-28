@@ -11,5 +11,14 @@
   "lang.si": "Сингал",
   "lang.id": "Индонез",
   "lang.my": "Мьянмар",
-  "lang.ne": "Непал"
+  "lang.ne": "Непал",
+  "workerFind": "Ажил хайх",
+  "Latest": "Хамгийн сүүлийн үеийн",
+  "Popular": "Алдартай",
+  "Recommended": "Санал болгосон",
+  "findingWork": "Ажил олох",
+  "personFind": "Хүн хайх",
+  "popualrMonthWorker": "Энэ сарын алдартай ажилчид",
+  "popualrMonthFarmer": "Энэ сарын алдартай тариаланчид",
+  "searchResultNotFound": "Хайлтанд илэрц олдсонгүй."
 }

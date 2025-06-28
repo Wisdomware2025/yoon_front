@@ -1,3 +1,4 @@
+import React, {useEffect, useRef} from 'react';
 import {
   Pressable,
   View,
@@ -5,10 +6,33 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  Animated,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {tryAutoLogin} from '../../utils/auth';
+
 const Start = () => {
   const navigation = useNavigation();
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+
+    const handleAutoLogin = async () => {
+      const result = await tryAutoLogin();
+
+      if (result.success) {
+        navigation.replace('Home');
+      }
+    };
+    handleAutoLogin();
+  }, [fadeAnim, navigation]);
+
   const handleLanguagePress = () => {
     navigation.navigate('Language');
   };
@@ -16,6 +40,7 @@ const Start = () => {
   const handleStartPress = () => {
     navigation.navigate('Join');
   };
+
   const handleLoginPress = () => {
     navigation.navigate('Login');
   };
@@ -30,20 +55,22 @@ const Start = () => {
           />
         </TouchableOpacity>
       </View>
-      <View style={styles.logoContainer}>
+
+      <Animated.View style={[styles.logoContainer, {opacity: fadeAnim}]}>
         <Image
           source={require('../../assets/images/Ilson_Logo.png')}
           style={styles.logoImage}
         />
         <Text style={styles.logoText}>Ilson</Text>
         <Text style={styles.logoSubText}>의성 일자리, 빠르고 간편하게</Text>
-      </View>
+      </Animated.View>
+
       <View style={styles.footer}>
         <Pressable onPress={handleStartPress} style={styles.StartButton}>
           <Text style={styles.StartButtonText}>시작하기</Text>
         </Pressable>
         <View style={styles.loginTexts}>
-          <Text style={styles.loginText}>이미 계정이 있나요? </Text>
+          <Text style={styles.loginText}>이미 계정이 있나요?</Text>
           <Pressable onPress={handleLoginPress}>
             <Text style={styles.loginLink}>로그인</Text>
           </Pressable>
@@ -52,6 +79,7 @@ const Start = () => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   StartContainer: {
     backgroundColor: '#fff',
@@ -74,8 +102,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoImage: {
-    height: 130,
-    width: 260,
+    height: 180,
+    width: 240,
   },
   logoText: {
     fontSize: 40,
@@ -95,11 +123,9 @@ const styles = StyleSheet.create({
     width: '90%',
     height: 50,
     alignItems: 'center',
-
     justifyContent: 'center',
     borderRadius: 7,
-    // marginBottom: 15,
-    marginBottom: 10,
+    marginBottom: 18,
   },
   StartButtonText: {
     color: '#fff',
@@ -111,10 +137,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
+  loginText: {
+    fontSize: 14,
+  },
   loginLink: {
+    fontSize: 16,
     color: '#285EFF',
     fontWeight: 'bold',
+    marginLeft: 8,
   },
 });
 

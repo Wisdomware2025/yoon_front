@@ -12,4 +12,13 @@ export const homeTexts = {
   'lang.id': '인도네시아어',
   'lang.my': '미얀마어',
   'lang.ne': '네팔어',
+  workerFind: '일손 찾기',
+  Latest: '최신순',
+  Popular: '인기순',
+  Recommended: '추천순',
+  findingWork: '일감 찾기',
+  personFind: '사람 찾기',
+  popualrMonthWorker: '이번달 인기 알바생',
+  popualrMonthFarmer: '이번달 인기 농장주',
+  searchResultNotFound: '검색 결과가 없습니다.',
 };

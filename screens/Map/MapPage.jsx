@@ -3,25 +3,13 @@ import {View, StyleSheet, Platform} from 'react-native';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 
-const MapMain = () => {
-  const apiKey = 'AIzaSyBZPh0Cj7PYNWtLsrJQasXFu4gxkNVaFls'; // 또는 process.env.XXX 등
-
-  console.log(apiKey);
-
-  const autoCompleteHandler = (data, details = null) => {
-    console.log('선택된 장소:', data);
-    if (details && details.geometry?.location) {
-      const {lat, lng} = details.geometry.location;
-      console.log('위도:', lat, '경도:', lng);
-      // 지도 이동 등 원하는 동작 가능
-    } else {
-      console.warn('장소 상세 정보가 없습니다.');
-    }
-  };
+const MapPage = () => {
+  const mapRef = useRef();
 
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
         provider={PROVIDER_GOOGLE}
         initialRegion={{
           latitude: 37.541,
@@ -33,28 +21,39 @@ const MapMain = () => {
       />
 
       <GooglePlacesAutocomplete
+        placeholder="장소를 검색해보세요!"
         minLength={2}
-        placeholder="검색어 입력"
+        fetchDetails={true}
+        debounce={200}
+        currentLocation={false}
+        predefinedPlaces={[]}
+        enableHighAccuracyLocation={false}
+        onPress={(data, details = null) => {
+          if (details) {
+            const {lat, lng} = details.geometry.location;
+            mapRef.current?.animateToRegion({
+              latitude: lat,
+              longitude: lng,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            });
+          }
+        }}
+        onFail={error => console.log('Google Places API 에러:', error)}
+        onNotFound={() => console.log('검색 결과 없음')}
         query={{
-          key: apiKey,
+          key: 'AIzaSyBZPh0Cj7PYNWtLsrJQasXFu4gxkNVaFls',
           language: 'ko',
           components: 'country:kr',
         }}
-        fetchDetails={true}
-        onPress={autoCompleteHandler}
-        textInputProps={{
-          onFocus: () => console.log('포커스됨'),
-          onBlur: () => console.log('포커스 해제됨'),
-        }}
-        predefinedPlaces={[]}
-        onFail={error => console.error(error)}
-        onNotFound={() => console.warn('검색 결과 없음')}
         keyboardShouldPersistTaps="handled"
         keepResultsAfterBlur={true}
         enablePoweredByContainer={false}
-        timeout={20000} // 여기 추가
-        debounce={300} // 여기 추가
-        fields="formatted_address,name,geometry" // 필요하면 추가
+        nearbyPlacesAPI="GooglePlacesSearch"
+        textInputProps={{
+          onFocus: () => console.log('검색창에 포커스됨'),
+          onBlur: () => console.log('검색창에서 포커스 나감'),
+        }}
         styles={{
           container: {
             position: 'absolute',
@@ -106,4 +105,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MapMain;
+export default MapPage;

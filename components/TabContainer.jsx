@@ -1,8 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-
+import {useTranslation} from 'react-i18next';
+import i18n from '../src/i18n';
 const TabContainer = ({tabs = [], selectedTab, onTabPress}) => {
   // const [selectedTab, setSelectedTab] = useState(tabs[0] || '');
+  const {t} = useTranslation();
 
   return (
     <View>
@@ -20,7 +22,7 @@ const TabContainer = ({tabs = [], selectedTab, onTabPress}) => {
                 styles.tabText,
                 selectedTab === tab && styles.activeTabText,
               ]}>
-              {tab}
+              {t(tab)}
             </Text>
           </TouchableOpacity>
         ))}

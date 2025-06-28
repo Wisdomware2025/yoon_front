@@ -4,12 +4,21 @@
   "lang.en": "ඉංග්‍රීසි",
   "lang.jh": "චීන",
   "lang.th": "තායි",
-  "lang.km": "කාම්බෝජියානු",
+  "lang.km": "කම්බෝජියානු",
   "lang.vi": "වියට්නාම",
   "lang.mn": "මොන්ගෝලියානු",
   "lang.uz": "උස්බෙක්",
   "lang.si": "සිංහල",
   "lang.id": "ඉන්දුනීසියානු",
   "lang.my": "බුරුම",
-  "lang.ne": "නේපාල"
+  "lang.ne": "නේපාල",
+  "workerFind": "වැඩ සොයන්නා",
+  "Latest": "නවතම",
+  "Popular": "ජනප්‍රිය",
+  "Recommended": "නිර්දේශිත",
+  "findingWork": "වැඩ සොයන්න",
+  "personFind": "පුද්ගලයා සොයන්න",
+  "popualrMonthWorker": "මෙම මාසයේ ජනප්‍රිය අල්ලස් සේවකයා",
+  "popualrMonthFarmer": "මෙම මාසයේ ජනප්‍රිය ගොවියා",
+  "searchResultNotFound": "ප්‍රතිඵල හමු නොවීය."
 }

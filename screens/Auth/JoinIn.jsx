@@ -14,8 +14,38 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {readFile} from 'react-native-fs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useAuth} from '../../context/AuthContext';
+import messaging from '@react-native-firebase/messaging';
+
+const getFcmToken = async () => {
+  try {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      const fcmToken = await messaging().getToken();
+      if (fcmToken) {
+        console.log('fcm token:', fcmToken);
+        return fcmToken;
+      } else {
+        console.log('fcm token을 받아오지 못함');
+        return null;
+      }
+    } else {
+      console.log('FCM 권한이 허용되지 않았습니다.');
+      return null;
+    }
+  } catch (error) {
+    console.error('FCM 토큰을 발급 실패', error);
+    return null;
+  }
+};
 
 const JoinIn = () => {
+  const {login} = useAuth();
   const route = useRoute();
   const {phoneNum} = route.params;
   const navigation = useNavigation();
@@ -39,10 +69,6 @@ const JoinIn = () => {
   };
 
   const handleSubmit = async () => {
-    // if (!username || !intro) {
-    //   Alert.alert('알림', '이름과 자기소개를 입력해주세요.');
-    //   return;
-    // }
     if (!username) {
       setUserError('이름을 입력해주세요!');
       return;
@@ -50,53 +76,70 @@ const JoinIn = () => {
     if (!intro) {
       setIntroError('자기소개를 입력해주세요!');
       return;
-    } else {
-      let base64Image = null;
-      if (imageUri) {
-        const base64Raw = await readFile(imageUri, 'base64');
-        base64Image = `data:image/jpeg;base64,${base64Raw}`;
-      }
-      const formData = {
-        phoneNum: phoneNum,
-        username: username,
-        intro: intro,
-        profileImg: base64Image,
-      };
-
-      try {
-        const response = await axios.post(
-          'https://ilson-924833727346.asia-northeast3.run.app/auth/signup',
-          formData,
-          {
-            headers: {
-              // 'Content-Type': 'multipart/form-data',
-              'Content-Type': 'application/json',
-            },
-          },
-        );
-
-        Alert.alert('성공', '회원가입이 완료되었습니다.');
-        navigation.navigate('Login');
-      } catch (error) {
-        console.log('보내는 데이터:', formData);
-        console.error(error.response?.data || error);
-        Alert.alert('오류', '회원가입 중 문제가 발생했습니다.');
-        console.log('서버 응답:', error.response?.data);
-      }
     }
+    let base64Image = null;
+    if (imageUri) {
+      const base64Raw = await readFile(imageUri, 'base64');
+      base64Image = `data:image/jpeg;base64,${base64Raw}`;
+    }
+    const formData = {
+      phoneNum: phoneNum,
+      username: username,
+      intro: intro,
+      profileImg: base64Image,
+    };
 
-    // const formData = new FormData();
-    // formData.append('phoneNum', phoneNum);
-    // formData.append('username', username);
-    // formData.append('intro', intro);
+    try {
+      const response = await axios.post(
+        'https://ilson-924833727346.asia-northeast3.run.app/auth/signup',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
 
-    // if (imageUri) {
-    //   formData.append('profileImg', {
-    //     uri: imageUri,
-    //     name: 'profile.jpg',
-    //     type: 'image/jpeg',
-    //   });
-    // }
+      Alert.alert('성공', '회원가입이 완료되었습니다.');
+      const accessToken = response.data.accessToken;
+      const userId = response.data.userId;
+      await AsyncStorage.setItem('userId', userId);
+
+      // const refreshToken = response.data.refreshToken;
+
+      if (accessToken) {
+        await AsyncStorage.setItem('accessToken', accessToken);
+
+        // await AsyncStorage.setItem('refreshToken', refreshToken);
+
+        console.log('Access token 저장 완료');
+        // console.log('Refresh token 저장 완료');
+
+        login();
+        try {
+          const fcmToken = await getFcmToken();
+          const fcmTokenResponse = await axios.post(
+            'https://ilson-924833727346.asia-northeast3.run.app/auth/get-fcmToken',
+            {fcmToken: fcmToken},
+            {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            },
+          );
+          // const fcmToken = fcmTokenResponse.data.fcmToken;
+          // await AsyncStorage.setItem('fcmToken', fcmToken);
+          // console.log('fcm token 저장 완료: ', fcmToken);
+        } catch (error) {
+          console.error('FCM 토큰 저장 실패:', error);
+        }
+      }
+    } catch (error) {
+      console.log('보내는 데이터:', formData);
+      console.error(error.response?.data || error);
+      Alert.alert('오류', '회원가입 중 문제가 발생했습니다.');
+      console.log('서버 응답:', error.response?.data);
+    }
   };
 
   return (

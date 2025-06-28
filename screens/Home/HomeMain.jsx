@@ -15,94 +15,77 @@ import WriteButton from '../../components/WriteButton';
 import TabContainer from '../../components/TabContainer';
 import SearchBar from '../../components/SearchBar';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useTranslation} from 'react-i18next';
+import i18n from '../../src/i18n';
 
-const accessToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODRiNWU5ZGIyNGMwZDMwNzE3MDRhMmUiLCJ1c2VybmFtZSI6IuydtO2YhOyEnSIsInBob25lTnVtIjoiMDEwOTY2NzM4OTQiLCJpYXQiOjE3NTA4MzU0MzIsImV4cCI6MTc1MDkyMTgzMn0.WS3zf0wrGBOi3LVPOZx4DfKk_M6tih6EG1RvXFBVS5k';
-
-const dummyFarmerPosts = [
-  {
-    _id: 1,
-    title: '감자 캐실 분 도와드립니다!',
-    authorName: '김나혜',
-    createdAt: '2025-05-20T12:34:56',
-    viewCnt: 120,
-    likesCnt: 34,
-    comments: 3,
-    image: require('../../assets/images/ranking1.png'),
-    role: 'worker',
-  },
-  {
-    _id: 2,
-    title: '고구마 캐실 분 도와드립니다!',
-    authorName: '이현석',
-    createdAt: '2025-05-20T12:50:21',
-    viewCnt: 13,
-    likesCnt: 30,
-    comments: 5,
-    image: require('../../assets/images/ranking2.png'),
-    role: 'worker',
-  },
-  {
-    _id: 3,
-    title: '옥수수 캐실 분 도와드립니다!',
-    authorName: '최윤정정',
-    createdAt: '2025-05-19T12:22:30',
-    viewCnt: 19,
-    likesCnt: 100,
-    comments: 8,
-    image: require('../../assets/images/ranking3.png'),
-    role: 'worker',
-  },
-];
-const dummyWorkerPosts = [
-  {
-    _id: 1,
-    title: '감자 캐실 분 구해요!',
-    authorName: '김나혜',
-    createdAt: '2025-05-20T12:34:56',
-    viewCnt: 120,
-    likesCnt: 34,
-    comments: 3,
-    image: require('../../assets/images/ranking1.png'),
-    role: 'farmer',
-  },
-  {
-    _id: 2,
-    title: '고구마 캐실 분 구해요!',
-    authorName: '이현석',
-    createdAt: '2025-05-20T12:50:21',
-    viewCnt: 13,
-    likesCnt: 30,
-    comments: 5,
-    image: require('../../assets/images/ranking2.png'),
-    role: 'farmer',
-  },
-  {
-    _id: 3,
-    title: '옥수수 캐실 분 구해요!',
-    authorName: '최윤정',
-    createdAt: '2025-05-19T12:22:30',
-    viewCnt: 19,
-    likesCnt: 100,
-    comments: 8,
-    image: require('../../assets/images/ranking3.png'),
-    role: 'farmer',
-  },
-];
+const languageMap = {
+  ko: 'Korean',
+  en: 'English',
+  jo: 'Arabic',
+  th: 'Thai',
+  km: 'Khmer',
+  vi: 'Vietnamese',
+  mn: 'Mongolian',
+  wo: 'Wolof',
+  si: 'Sinhala',
+  id: 'Indonesian',
+  my: 'Burmese',
+  ne: 'Nepali',
+};
 
 const HomeMain = () => {
+  const {t} = useTranslation();
   const [popularProfiles, setPopularProfiles] = useState([]);
   const [searchkeyword, setSearchKeyword] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [posts, setPosts] = useState([]);
-  const [selectedTab, setSelectedTab] = useState('일손 찾기');
+  const [selectedTab, setSelectedTab] = useState(t('workerFind'));
   const [selectedFilter, setSelectedFilter] = useState('최신순');
+  const [accessToken, setAccessToken] = useState('');
+
+  const fetchTranslate = async texts => {
+    const languageCode = i18n.language;
+    const languageName = languageMap[languageCode] || 'Korean';
+    try {
+      const response = await axios.post(
+        'https://ilson-924833727346.asia-northeast3.run.app/translate',
+        {
+          originTexts: texts,
+
+          language: languageName,
+        },
+      );
+      console.log('전체 응답 데이터:', response.data);
+      console.log('번역 api 응답:', response.data);
+
+      return Array.isArray(response.data.translatedTexts)
+        ? response.data.translatedTexts
+        : [];
+    } catch (error) {
+      console.log('보내는 언어:', languageName);
+      console.log('보내는 값: ', texts);
+      console.error('번역 api 오류: ', error);
+
+      return texts;
+    }
+  };
 
   useEffect(() => {
+    const initialize = async () => {
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      setAccessToken(accessToken);
+    };
+    initialize();
+  }, []);
+
+  useEffect(() => {
+    if (!accessToken) return;
+
     const fetchPosts = async () => {
       try {
         const endpoint =
-          selectedTab === '일손 찾기'
+          selectedTab === t('workerFind') //'일손 찾기'
             ? 'https://ilson-924833727346.asia-northeast3.run.app/boards/farmer'
             : 'https://ilson-924833727346.asia-northeast3.run.app/boards/worker';
 
@@ -111,19 +94,33 @@ const HomeMain = () => {
             Authorization: `Bearer ${accessToken}`,
           },
         });
+        console.log('전체 응답 데이터:', response.data);
 
-        setPosts(response.data);
+        const rawPosts = response.data?.posts;
+
+        const originalPosts = Array.isArray(response.data) ? response.data : [];
+
+        const titles = originalPosts.map(post => post.title);
+
+        const translatedTitles = await fetchTranslate(titles);
+
+        const translatedPosts = originalPosts.map((post, index) => ({
+          ...post,
+          title: translatedTitles[index] || post.title,
+        }));
+        console.log('번역된 게시글:', translatedPosts);
+        console.log('받은 posts:', response.data?.posts);
+        console.log('originalPosts:', originalPosts);
+        console.log('titles:', titles);
+        setPosts(translatedPosts);
       } catch (error) {
-        setPosts(
-          selectedTab === '일손 찾기' ? dummyFarmerPosts : dummyWorkerPosts,
-        );
         console.error('게시글 요청 실패:', error);
       }
     };
 
     const fetchPopularProfiles = async () => {
       try {
-        const role = selectedTab === '일손 찾기' ? 'worker' : 'farmer';
+        const role = selectedTab === 'workerFind' ? 'worker' : 'farmer';
 
         const response = await axios.get(
           `https://ilson-924833727346.asia-northeast3.run.app/profile/popular/${role}`,
@@ -156,24 +153,26 @@ const HomeMain = () => {
 
     fetchPosts();
     fetchPopularProfiles();
-  }, [selectedTab]);
+  }, [selectedTab, accessToken, t]);
 
-  const sortedPosts = [...posts].sort((a, b) => {
-    if (selectedFilter === '최신순') {
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    } else if (selectedFilter === '인기순') {
-      return b.viewCnt - a.viewCnt;
-    } else if (selectedFilter === '추천순') {
-      return b.likesCnt - a.likesCnt;
-    }
-    return 0;
-  });
+  const sortedPosts = Array.isArray(posts)
+    ? [...posts].sort((a, b) => {
+        if (selectedFilter === t('Latest')) {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        } else if (selectedFilter === t('Popular')) {
+          return b.viewCnt - a.viewCnt;
+        } else if (selectedFilter === t('Recommended')) {
+          return b.likesCnt - a.likesCnt;
+        }
+        return 0;
+      })
+    : [];
 
   const handleSearch = async keyword => {
     try {
       const response = await axios.get(
         'https://ilson-924833727346.asia-northeast3.run.app/search',
-        // 'https://ilson-924833727346.asia-northeast3.run.app/search?query={keyword}',
+
         {
           params: {query: keyword},
           headers: {
@@ -195,9 +194,9 @@ const HomeMain = () => {
       <AppBar />
       <SearchBar
         userType={
-          selectedTab === '일손 찾기'
+          selectedTab === 'workerFind'
             ? 'farmer'
-            : selectedTab === '일감 찾기'
+            : selectedTab === 'findingWork'
             ? 'worker'
             : 'user'
         }
@@ -205,13 +204,13 @@ const HomeMain = () => {
       />
       {searchkeyword.trim() ? (
         <TabContainer
-          tabs={['일손 찾기', '일감 찾기', '사람 찾기']}
+          tabs={['workerFind', 'findingWork', 'personFind']}
           selectedTab={selectedTab}
           onTabPress={setSelectedTab}
         />
       ) : (
         <TabContainer
-          tabs={['일손 찾기', '일감 찾기']}
+          tabs={['workerFind', 'findingWork']}
           selectedTab={selectedTab}
           onTabPress={setSelectedTab}
         />
@@ -221,9 +220,9 @@ const HomeMain = () => {
         {searchkeyword.trim() ? null : (
           <View style={styles.rankingSection}>
             <Text style={styles.sectionTitle}>
-              {selectedTab === '일손 찾기'
-                ? '이번 달 인기 알바생'
-                : '이번 달 인기 농장주'}
+              {selectedTab === 'workerFind'
+                ? t('popularMonthWorker')
+                : t('popularMonthFarmer')}
             </Text>
             <View style={styles.rankingList}>
               {popularProfiles.slice(0, 3).map((profile, idx) => (
@@ -245,7 +244,7 @@ const HomeMain = () => {
         )}
         {searchkeyword.trim() ? null : (
           <View style={styles.filterContainer}>
-            {['최신순', '인기순', '추천순'].map(filter => (
+            {[t('Latest'), t('Popular'), t('Recommended')].map(filter => (
               <TouchableOpacity
                 key={filter}
                 onPress={() => setSelectedFilter(filter)}
@@ -267,10 +266,11 @@ const HomeMain = () => {
 
         {searchkeyword.trim() && searchkeyword !== null ? (
           <>
-            {selectedTab === '사람 찾기' ? (
+            {selectedTab === t('personFind') ? (
               searchResults.users.length === 0 ? (
                 <Text style={{textAlign: 'center', marginTop: 20}}>
-                  검색 결과가 없습니다.
+                  {t('searchResultNotFound')}
+                  {/* 검색 결과가 없습니다. */}
                 </Text>
               ) : (
                 searchResults.users.map(user => (
@@ -290,13 +290,13 @@ const HomeMain = () => {
             ) : (
               (() => {
                 const filtered = searchResults.titles.filter(post =>
-                  selectedTab === '일손 찾기'
+                  selectedTab === 'workerFind'
                     ? post.role === 'farmer'
                     : post.role === 'worker',
                 );
                 return filtered.length === 0 ? (
                   <Text style={{textAlign: 'center', marginTop: 20}}>
-                    검색 결과가 없습니다.
+                    {t('searchResultNotFound')}
                   </Text>
                 ) : (
                   filtered.map(post => (
@@ -371,6 +371,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginVertical: 8,
+    alignItems: 'center',
   },
   filterButton: {
     paddingVertical: 6,
@@ -381,10 +382,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     width: 100,
     alignItems: 'center',
+
+    color: '#7DCA79',
   },
   activeFilterButton: {
     backgroundColor: '#7DCA79',
     borderColor: '#7DCA79',
+    alignItems: 'center',
   },
   filterText: {
     fontSize: 13,

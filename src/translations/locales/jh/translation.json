@@ -9,7 +9,16 @@
   "lang.mn": "蒙古语",
   "lang.uz": "乌兹别克语",
   "lang.si": "僧伽罗语",
-  "lang.id": "印度尼西亚语",
+  "lang.id": "印尼语",
   "lang.my": "缅甸语",
-  "lang.ne": "尼泊尔语"
+  "lang.ne": "尼泊尔语",
+  "workerFind": "找工作",
+  "Latest": "最新的",
+  "Popular": "最受欢迎的",
+  "Recommended": "推荐的",
+  "findingWork": "找工作",
+  "personFind": "找人",
+  "popualrMonthWorker": "本月热门兼职",
+  "popualrMonthFarmer": "本月热门农场主",
+  "searchResultNotFound": "未找到搜索结果"
 }
