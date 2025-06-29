@@ -110,20 +110,27 @@ const CalendarMain = () => {
       console.error(error);
     }
   };
-
+  // 선택된 날짜 스케줄 불러오기
   const fetchScheduleByDate = async date => {
-    // 선택된 날짜 스케줄 불러오기
     try {
       const accessToken = await AsyncStorage.getItem('accessToken');
       // const endpoint = `https://ilson-924833727346.asia-northeast3.run.app/schedules/${date._id}`;
-      const endpoint = `https://ilson-924833727346.asia-northeast3.run.app/schedules/${date}`;
+      const endpoint = `https://ilson-924833727346.asia-northeast3.run.app/schedules/${date.dateString}`;
       const response = await axios.get(endpoint, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
+      console.log('불러온 선택된 날짜 스케줄:', response.data);
 
-      setSelectedSchedule(response.data);
+      // setSelectedSchedule(response.data);
+      // setSelectedSchedule(response.data.length > 0 ? response.data[0] : null);
+      // setSelectedSchedule(response.data ?? null);
+      setSelectedSchedule(
+        Array.isArray(response.data) && response.data.length > 0
+          ? response.data[0]
+          : null,
+      );
     } catch (error) {
       if (error.response) {
         console.error('서버 응답 오류:', error.response.data);
@@ -146,10 +153,12 @@ const CalendarMain = () => {
       fetchRecentSchedule();
     }, []),
   );
+  console.log('setSelectedDate:', selectedDate);
 
   const onPressModalOpen = async date => {
     setSelectedDate(date);
-    await fetchScheduleByDate(date.dateString);
+    // await fetchScheduleByDate(date.dateString);
+    await fetchScheduleByDate(date);
     setIsModalVisible(true);
   };
 
@@ -167,7 +176,8 @@ const CalendarMain = () => {
     setIsModalVisible(false);
     try {
       const accessToken = await AsyncStorage.getItem('accessToken');
-      const endpoint = `https://ilson-924833727346.asia-northeast3.run.app/schedules/${selectedDate.id}`;
+
+      const endpoint = `https://ilson-924833727346.asia-northeast3.run.app/schedules/${selectedSchedule._id}`;
 
       const updatedData = {
         startDate: selectedSchedule.startDate,
@@ -203,7 +213,9 @@ const CalendarMain = () => {
   const onPressDeleteSchedule = async () => {
     try {
       const accessToken = await AsyncStorage.getItem('accessToken');
-      const endpoint = `https://ilson-924833727346.asia-northeast3.run.app/schedules/${selectedDate.id}`;
+      // const endpoint = `https://ilson-924833727346.asia-northeast3.run.app/schedules/${selectedDate.id}`;
+      const endpoint = `https://ilson-924833727346.asia-northeast3.run.app/schedules/${selectedSchedule._id}`;
+
       const response = await axios.delete(endpoint, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -215,26 +227,14 @@ const CalendarMain = () => {
       setIsModalVisible(false);
     } catch (error) {
       console.error(error);
+      if (error.response) {
+        console.error('서버 응답 오류:', error.response.data);
+      } else {
+        console.error('요청 실패:', error.message);
+      }
     }
   };
 
-  // const markedDates = Object.fromEntries(
-  //   Object.values(schedules).map(item => {
-  //     const formattedDate = dayjs(item.date).format('YYYY-MM-DD');
-  //     return [
-  //       formattedDate,
-  //       {
-  //         customStyles: {
-  //           container: {backgroundColor: '#FFDCDC'},
-
-  //           borderRadius: 4,
-  //           paddingHorizontal: 4,
-  //           marginTop: 2,
-  //         },
-  //       },
-  //     ];
-  //   }),
-  // );
   const markedDates = schedules.reduce((acc, item) => {
     const start = dayjs(item.startDate);
     const end = dayjs(item.endDate);
@@ -242,14 +242,27 @@ const CalendarMain = () => {
 
     while (current.isSameOrBefore(end, 'day')) {
       const formattedDate = current.format('YYYY-MM-DD');
+
+      // if (!acc[formattedDate]) {
+      //   acc[formattedDate] = {dots: []};
+      // }
+
+      // acc[formattedDate].dots.push({
+      //   key: item._id,
+      //   color: item.color || '#FFDCDC',
+      // });
       acc[formattedDate] = {
+        dots: [
+          ...(acc[formattedDate]?.dots || []),
+          {key: item._id, color: item.color || '#FFDCDC'},
+        ],
         customStyles: {
-          container: {backgroundColor: '#FFDCDC'},
-          borderRadius: 4,
-          paddingHorizontal: 4,
-          marginTop: 2,
+          container: {
+            backgroundColor: item.color || '#FFDCDC',
+          },
         },
       };
+
       current = current.add(1, 'day');
     }
 
@@ -274,7 +287,7 @@ const CalendarMain = () => {
 
       <View style={styles.calendarContainer}>
         <Calendar
-          markingType="custom"
+          markingType={('custom', 'multi-dot')}
           markedDates={markedDates}
           onDayPress={onPressModalOpen}
           renderArrow={direction => (
@@ -338,7 +351,11 @@ const CalendarMain = () => {
         visible={isModalVisible}
         onRequestClose={onPressModalClose}>
         <Pressable style={styles.modalWrapper} onPress={onPressModalClose}>
-          <Pressable style={styles.modalContainer} onPress={() => {}}>
+          <Pressable
+            style={
+              selectedSchedule ? styles.modalContainers : styles.modalContainer
+            }
+            onPress={() => {}}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalHeaderText}>
                 {selectedDate
@@ -365,7 +382,8 @@ const CalendarMain = () => {
                   </View>
                   <Text style={styles.modalMainContentText}>
                     {/* 4월 8일 ~ 4월 11일 */}
-                    {selectedSchedule.startDate} ~{selectedSchedule.endDate}
+                    {dayjs(selectedSchedule.startDate).format('M월 D일')} ~{' '}
+                    {dayjs(selectedSchedule.endDate).format('M월 D일')}
                   </Text>
                 </View>
                 <View style={styles.modalMainContent}>
@@ -411,9 +429,8 @@ const CalendarMain = () => {
                     />
                   </View>
                   <Text style={styles.modalMainContentText}>
-                    {' '}
-                    {/* 시급 10,000원*/} {selectedSchedule.chargeType}
-                    {selectedSchedule.charge}
+                    {selectedSchedule.chargeType} {/* 시급 10,000원*/}
+                    {selectedSchedule.charge}원
                   </Text>
                 </View>
               </View>
@@ -432,8 +449,8 @@ const CalendarMain = () => {
                 </Pressable>
                 <Pressable
                   onPress={onPressDeleteSchedule}
-                  style={styles.closeButton}>
-                  <Text style={styles.closeButtonText}>삭제하기</Text>
+                  style={styles.deleteButton}>
+                  <Text style={styles.deleteButtonText}>삭제하기</Text>
                 </Pressable>
               </View>
             ) : (
@@ -514,6 +531,12 @@ const styles = StyleSheet.create({
     width: 330,
     height: 330,
   },
+  modalContainers: {
+    backgroundColor: '#EDFFEC',
+    borderRadius: 10,
+    width: 330,
+    height: 380,
+  },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -573,6 +596,40 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     color: '#000',
+    fontSize: 15,
+  },
+  correctionButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: 'rgba(0, 0, 0, 0.2)',
+    borderRadius: 5,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    width: 125,
+    height: 40,
+    marginTop: 45,
+    marginLeft: 18,
+  },
+  correctionButtonText: {
+    color: '#333333',
+    fontSize: 15,
+  },
+  deleteButton: {
+    marginLeft: 18,
+    backgroundColor: 'rgba(255, 0, 0, 0.6)',
+
+    borderRadius: 5,
+
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    width: 125,
+    height: 40,
+    marginTop: 45,
+  },
+  deleteButtonText: {
+    color: '#333333',
     fontSize: 15,
   },
   modalMainFull: {
