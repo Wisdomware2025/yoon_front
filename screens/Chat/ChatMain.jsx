@@ -2,17 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import ChatItem from './components/ChatItem';
 import axios from 'axios';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ChatList = () => {
   const [chatList, setChatList] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const accessToken =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODRiNWU5ZGIyNGMwZDMwNzE3MDRhMmUiLCJ1c2VybmFtZSI6IuydtO2YhOyEnSIsInBob25lTnVtIjoiMDEwOTY2NzM4OTQiLCJpYXQiOjE3NTExOTg2MzMsImV4cCI6MTc1MTI4NTAzM30.rgmvds4TOC304Aso0TKB-ges3eKCaG8Dt2BT92uIUHQ';
-
   useEffect(() => {
     const fetchChatList = async () => {
       try {
+        const accessToken = await AsyncStorage.getItem("accessToken");
+
+        if (!accessToken) {
+          console.log('accessToken 없음');
+          Alert.alert('오류', '로그인이 필요합니다.');
+          setLoading(false);
+          return;
+        }
+
         const response = await axios.get(
           'https://ilson-924833727346.asia-northeast3.run.app/chats/list',
           {
@@ -257,7 +264,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     marginTop: 4,
   },
-  
+
 });
 
 export default ChatList;

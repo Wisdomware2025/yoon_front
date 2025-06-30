@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -26,6 +26,29 @@ const ChatPage = () => {
   const [textMessage, setTextMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    const getUserIdAndMessages = async () => {
+      const currentUserId = await AsyncStorage.getItem('userId');
+      setUserId(currentUserId);
+
+      if (!receiverId) return;
+      try {
+        const accessToken = await AsyncStorage.getItem('accessToken');
+        const response = await axios.get(`${API_URL}/chats/history/${receiverId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        setChatMessages(response.data.map(msg => ({
+          ...msg,
+          fromSelf: msg.sender === currentUserId
+        })).reverse());
+      } catch (error) {
+        console.error('채팅 기록 조회 실패:', error);
+      }
+    };
+    getUserIdAndMessages();
+  }, [receiverId]);
 
   const formatTime = (date) => {
     const hours = date.getHours();
@@ -62,7 +85,7 @@ const ChatPage = () => {
         timeStamp: new Date(),
       };
 
-      const res = await axios.post(
+      await axios.post(
         `${API_URL}/chats/send-message/${receiverId}`,
         messageData,
         {
@@ -72,15 +95,10 @@ const ChatPage = () => {
         }
       );
 
-      const newMessage = {
-        id: Date.now().toString(),
-        fromSelf: true,
-        text: messageData.message,
-        image: messageData.img,
-        sentAt: new Date(),
-      };
-
-      setChatMessages((prev) => [...prev, newMessage]);
+      setChatMessages((prev) => [
+        { ...messageData, fromSelf: true, id: Date.now().toString(), sentAt: new Date() },
+        ...prev
+      ]);
       setTextMessage('');
       setSelectedImage(null);
     } catch (err) {
@@ -100,7 +118,7 @@ const ChatPage = () => {
       {item.image && (
         <Image source={{ uri: item.image }} style={styles.messageImage} />
       )}
-      <Text style={styles.messageTime}>{formatTime(new Date(item.sentAt))}</Text>
+      <Text style={styles.messageTime}>{formatTime(new Date(item.timeStamp || item.sentAt))}</Text>
     </View>
   );
 
@@ -123,8 +141,9 @@ const ChatPage = () => {
       <FlatList
         data={chatMessages}
         renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id || item._id}
         contentContainerStyle={styles.messagesContainer}
+        inverted
       />
 
       {selectedImage && (

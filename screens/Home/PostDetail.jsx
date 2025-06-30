@@ -178,7 +178,7 @@ const PostDetail = ({ route, navigation, isMine = false }) => {
         </View>
       )}
 
-      <View style={[styles.line, { marginTop: 10, marginBottom: 15 }]} />
+      <View style={[styles.line, { marginTop: 10, marginBottom: 20 }]} />
 
       <View style={styles.contentCon}>
         <Text style={styles.conText}>{post.content}</Text>
@@ -189,7 +189,7 @@ const PostDetail = ({ route, navigation, isMine = false }) => {
         style={styles.button}
         onPress={() =>
           navigation.navigate("ChatPage", {
-            receiverId: post.authorId || post.author?._id,
+            receiverId: post.author,
             name: post.authorName || "작성자",
           })
         }

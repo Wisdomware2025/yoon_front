@@ -7,6 +7,9 @@ import LanguageScreen from './LanguageScreen';
 import NewPost from './NewPost';
 import PostDetail from './PostDetail';
 import AlarmScreen from './AlarmScreen';
+import ChatScreen from '../Chat/ChatScreen';
+import ChatPage from '../Chat/ChatPage';
+
 const Stack = createStackNavigator();
 
 const HomeScreen = () => {
@@ -18,6 +21,8 @@ const HomeScreen = () => {
       <Stack.Screen name="Language" component={LanguageScreen} />
       <Stack.Screen name="Alarm" component={AlarmScreen} />
       <Stack.Screen name="NewPost" component={NewPost} />
+      <Stack.Screen name="ChatScreen" component={ChatScreen} />
+      <Stack.Screen name="ChatPage" component={ChatPage} />
     </Stack.Navigator>
   );
 };
