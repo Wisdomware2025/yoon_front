@@ -302,6 +302,7 @@ const HomeMain = () => {
                   filtered.map(post => (
                     <PostCard
                       key={post._id}
+                      _id={post._id}
                       title={post.title}
                       authorName={post.authorName}
                       createdAt={post.createdAt}
@@ -320,6 +321,7 @@ const HomeMain = () => {
           sortedPosts.map(post => (
             <PostCard
               key={post._id}
+              _id={post._id}
               title={post.title}
               authorName={post.authorName}
               createdAt={post.createdAt}

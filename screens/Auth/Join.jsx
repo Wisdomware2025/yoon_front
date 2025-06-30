@@ -66,6 +66,7 @@ const Join = () => {
         );
       } else {
         console.error('네트워크 오류:', error.message);
+        console.error('에러:', error.toJSON());
       }
       alert('인증번호 전송에 실패했습니다.');
     }
@@ -81,12 +82,6 @@ const Join = () => {
         },
       );
       console.log('인증 성공:', response.data);
-
-      // const {accessToken, refreshToken} = response.data;
-
-      // await AsyncStorage.setItem('accessToken', accessToken);
-      // await AsyncStorage.setItem('refreshToken', refreshToken);
-
       alert('인증에 성공했습니다.');
       navigation.navigate('HomeMain');
     } catch (error) {

@@ -8,7 +8,7 @@ const ChatScreen = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       {/* <Stack.Screen name="ChatMain" component={ChatMain} /> */}
-      <Stack.Screen name="Login" component={Join} />
+      <Stack.Screen name="ChatMain" component={ChatMain} />
     </Stack.Navigator>
   );
 };

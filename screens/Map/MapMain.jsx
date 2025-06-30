@@ -4,16 +4,25 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 
 const MapMain = () => {
-  const apiKey = 'AIzaSyBZPh0Cj7PYNWtLsrJQasXFu4gxkNVaFls'; // 또는 process.env.XXX 등
-
-  console.log(apiKey);
+  const apiKey = 'AIzaSyBZPh0Cj7PYNWtLsrJQasXFu4gxkNVaFls'; // 실제 프로젝트에서는 환경 변수로 분리 권장
+  const mapRef = useRef(null); // 지도 ref 설정
 
   const autoCompleteHandler = (data, details = null) => {
     console.log('선택된 장소:', data);
     if (details && details.geometry?.location) {
       const {lat, lng} = details.geometry.location;
       console.log('위도:', lat, '경도:', lng);
-      // 지도 이동 등 원하는 동작 가능
+
+      // 지도 이동
+      mapRef.current?.animateToRegion(
+        {
+          latitude: lat,
+          longitude: lng,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        1000, // duration: 1초
+      );
     } else {
       console.warn('장소 상세 정보가 없습니다.');
     }
@@ -22,6 +31,7 @@ const MapMain = () => {
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef} // ref 연결
         provider={PROVIDER_GOOGLE}
         initialRegion={{
           latitude: 37.541,
@@ -52,9 +62,8 @@ const MapMain = () => {
         keyboardShouldPersistTaps="handled"
         keepResultsAfterBlur={true}
         enablePoweredByContainer={false}
-        timeout={20000} // 여기 추가
-        debounce={300} // 여기 추가
-        fields="formatted_address,name,geometry" // 필요하면 추가
+        timeout={20000}
+        debounce={300}
         styles={{
           container: {
             position: 'absolute',

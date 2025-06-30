@@ -394,7 +394,6 @@ const CalendarMain = () => {
                     />
                   </View>
                   <Text style={styles.modalMainContentText}>
-                    {/* 오전 8시 ~ 오전 11시 */}
                     {selectedSchedule.startTime} ~ {selectedSchedule.endTime}
                   </Text>
                 </View>

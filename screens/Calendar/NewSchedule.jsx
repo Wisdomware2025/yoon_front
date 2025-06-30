@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,21 +8,21 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import {Dropdown} from 'react-native-element-dropdown';
+import { useRoute } from '@react-navigation/native';
+import { Dropdown } from 'react-native-element-dropdown';
 import Modal from 'react-native-modal';
 import Postcode from '@actbase/react-daum-postcode';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {Calendar} from 'react-native-calendars';
-import axios from 'axios';
-
-import styles from './style';
+import { Calendar } from 'react-native-calendars';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import styles from './style';
 
 const wageTypeOptions = [
-  {label: '시급', value: '시급'},
-  {label: '일당', value: '일당'},
-  {label: '일급', value: '일급'},
-  {label: '월급', value: '월급'},
+  { label: '시급', value: '시급' },
+  { label: '일당', value: '일당' },
+  { label: '일급', value: '일급' },
+  { label: '월급', value: '월급' },
 ];
 
 const getFormattedDateWithDay = dateString => {
@@ -43,17 +43,15 @@ const formatTime = date => {
 };
 
 const NewSchedule = () => {
-  const today = new Date();
+  const route = useRoute();
+  const passedDate = route.params?.selectedDate?.dateString;
+  const today = passedDate ? new Date(passedDate) : new Date();
   const todayString = today.toISOString().split('T')[0];
 
   const [date1, setDate1] = useState(getFormattedDateWithDay(todayString));
   const [date2, setDate2] = useState(getFormattedDateWithDay(todayString));
-  const [date1Time, setDate1Time] = useState(
-    new Date(new Date().setHours(8, 0, 0, 0)),
-  );
-  const [date2Time, setDate2Time] = useState(
-    new Date(new Date().setHours(9, 0, 0, 0)),
-  );
+  const [date1Time, setDate1Time] = useState(new Date(today.setHours(8, 0, 0, 0)));
+  const [date2Time, setDate2Time] = useState(new Date(today.setHours(9, 0, 0, 0)));
 
   const [activeDateField, setActiveDateField] = useState(null);
   const [activeTimeField, setActiveTimeField] = useState(null);
@@ -92,85 +90,52 @@ const NewSchedule = () => {
   };
 
   const handleSubmit = async () => {
-    // if (!ACCESS_TOKEN) {
-    //   console.warn('ACCESS_TOKEN 없음');
-    //   Alert.alert('토큰이 없습니다', '로그인이 필요합니다.');
-    //   return;
-    // }
-
-    if (
-      !date1 ||
-      !date2 ||
-      !address ||
-      !charge ||
-      !work ||
-      !workers ||
-      !value
-    ) {
+    if (!date1 || !date2 || !address || !charge || !work || !workers || !value) {
       Alert.alert('모든 필드를 입력해주세요.');
       return;
     }
 
     const date1ISO = parseToISODate(date1);
     const date2ISO = parseToISODate(date2);
-
-    const postData = async (dateISO, startTime, endTime) => {
-      const ACCESS_TOKEN = await AsyncStorage.getItem('accessToken');
-
-      try {
-        await axios.post(
-          `https://ilson-924833727346.asia-northeast3.run.app/schedules/${dateISO}`,
-          {
-            startDate: dateISO,
-            endDate: dateISO,
-            startTime: date1Time.toTimeString().slice(0, 5),
-            endTime: date2Time.toTimeString().slice(0, 5),
-            workers,
-            work,
-            location: address,
-            charge,
-            chargeType: value,
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${ACCESS_TOKEN}`,
-            },
-          },
-        );
-      } catch (err) {
-        throw new Error(
-          err.response?.data?.message || `스케줄(${dateISO}) 저장 실패`,
-        );
-      }
-    };
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    const author = await AsyncStorage.getItem('userId');
 
     try {
-      if (date1ISO === date2ISO) {
-        await postData(
-          date1ISO,
-          date1Time.toTimeString().slice(0, 5),
-          date2Time.toTimeString().slice(0, 5),
-        );
-      } else {
-        await postData(date1ISO, date1Time.toTimeString().slice(0, 5), '23:59');
-        await postData(date2ISO, '00:00', date2Time.toTimeString().slice(0, 5));
-      }
+      await axios.post(
+        `https://ilson-924833727346.asia-northeast3.run.app/schedules`,
+        {
+          startDate: date1ISO,
+          endDate: date2ISO,
+          startTime: date1Time.toTimeString().slice(0, 5),
+          endTime: date2Time.toTimeString().slice(0, 5),
+          workers,
+          work,
+          location: address,
+          charge,
+          chargeType: value,
+          author,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
       Alert.alert('일정이 성공적으로 저장되었습니다!');
-
       setDate1(getFormattedDateWithDay(todayString));
       setDate2(getFormattedDateWithDay(todayString));
-      setDate1Time(new Date(new Date().setHours(8, 0, 0, 0)));
-      setDate2Time(new Date(new Date().setHours(9, 0, 0, 0)));
+      setDate1Time(new Date(today.setHours(8, 0, 0, 0)));
+      setDate2Time(new Date(today.setHours(9, 0, 0, 0)));
       setAddress('');
       setValue(null);
       setCharge('');
       setWork('');
       setWorkers('');
     } catch (error) {
-      console.error(error);
-      Alert.alert('일정 저장 실패', error.message);
+      console.error('스케줄 저장 실패:', error.response?.data || error.message);
+      Alert.alert('스케줄 저장 실패', error.response?.data?.message || error.message);
     }
   };
 
@@ -178,10 +143,7 @@ const NewSchedule = () => {
     <ScrollView style={styles.background}>
       <View style={styles.Container}>
         <TouchableOpacity>
-          <Image
-            source={require('../../assets/icons/Back.png')}
-            style={styles.backButton}
-          />
+          <Image source={require('../../assets/icons/Back.png')} style={styles.backButton} />
         </TouchableOpacity>
         <Text style={styles.title}>일정을 추가해보세요!</Text>
       </View>
@@ -207,10 +169,7 @@ const NewSchedule = () => {
         </View>
 
         <View style={styles.box3}>
-          <Image
-            source={require('../../assets/images/right.png')}
-            style={styles.rightimg}
-          />
+          <Image source={require('../../assets/images/right.png')} style={styles.rightimg} />
         </View>
 
         <View style={styles.box2}>
@@ -233,15 +192,13 @@ const NewSchedule = () => {
         </View>
       </View>
 
-      <Modal
-        isVisible={showCalendar}
-        onBackdropPress={() => setShowCalendar(false)}>
-        <View style={{backgroundColor: 'white', borderRadius: 10, padding: 10}}>
+      <Modal isVisible={showCalendar} onBackdropPress={() => setShowCalendar(false)}>
+        <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 10 }}>
           <Calendar onDayPress={handleDateSelect} />
           <TouchableOpacity
             onPress={() => setShowCalendar(false)}
-            style={{marginTop: 10, alignItems: 'center', padding: 10}}>
-            <Text style={{color: '#285EFF', fontWeight: 'bold'}}>닫기</Text>
+            style={{ marginTop: 10, alignItems: 'center', padding: 10 }}>
+            <Text style={{ color: '#285EFF', fontWeight: 'bold' }}>닫기</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -277,26 +234,19 @@ const NewSchedule = () => {
             value={address}
             editable={false}
           />
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => setModalVisible(true)}>
-            <Image
-              source={require('../../assets/images/search.png')}
-              style={styles.icon}
-            />
+          <TouchableOpacity style={styles.iconButton} onPress={() => setModalVisible(true)}>
+            <Image source={require('../../assets/images/search.png')} style={styles.icon} />
           </TouchableOpacity>
         </View>
       </View>
 
       <Modal isVisible={modalVisible}>
-        <View style={{flex: 1, backgroundColor: 'white', borderRadius: 10}}>
+        <View style={{ flex: 1, backgroundColor: 'white', borderRadius: 10 }}>
           <Postcode
-            style={{flex: 1}}
-            jsOptions={{animation: false}}
+            style={{ flex: 1 }}
+            jsOptions={{ animation: false }}
             onSelected={data => {
-              const fullAddress = `${data.address} ${
-                data.buildingName || ''
-              }`.trim();
+              const fullAddress = `${data.address} ${data.buildingName || ''}`.trim();
               setAddress(fullAddress);
               setModalVisible(false);
             }}
@@ -304,8 +254,8 @@ const NewSchedule = () => {
           />
           <TouchableOpacity
             onPress={() => setModalVisible(false)}
-            style={{alignItems: 'center', padding: 10}}>
-            <Text style={{color: '#285EFF'}}>닫기</Text>
+            style={{ alignItems: 'center', padding: 10 }}>
+            <Text style={{ color: '#285EFF' }}>닫기</Text>
           </TouchableOpacity>
         </View>
       </Modal>

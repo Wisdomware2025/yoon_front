@@ -1,144 +1,263 @@
-import {useEffect, useState} from 'react';
-import {View, StyleSheet, Text, Image, FlatList} from 'react-native';
-import HeaderWithBack from '../../components/HeaderWithBack';
-const dummyPosts = [
-  {
-    profileImage: require('../../assets/images/ranking1.png'),
-    name: '금장미',
-    date: '2025.04.16.수',
-    title: '만족해요',
-    content:
-      '사장님이 친절하십니다. 새참이라고 하시더니 갑자기 고기 불판을 가져오셔서 구워주셨어요 ㅎㅎ',
-    images: [
-      require('../../assets/images/apple.png'),
-      require('../../assets/images/apple.png'),
-      require('../../assets/images/apple.png'),
-    ],
-  },
-  {
-    profileImage: require('../../assets/images/ranking2.png'),
-    name: '장은수',
-    date: '2025.04.15.수',
-    title: '별로에요',
-    content: '벌에서 드론소리나요. 벌이 너무 많아요 죽을 것 같아요.',
-    images: [
-      require('../../assets/images/apple.png'),
-      require('../../assets/images/apple.png'),
-      require('../../assets/images/apple.png'),
-    ],
-  },
-  {
-    profileImage: require('../../assets/images/ranking3.png'),
-    name: '김나혜',
-    date: '2025.04.23.수',
-    title: '만족해요',
-    content: '사장님이 친절하십니다.',
-    images: [
-      require('../../assets/images/apple.png'),
-      require('../../assets/images/apple.png'),
-      require('../../assets/images/apple.png'),
-    ],
-  },
-];
-const ChatMain = () => {
-  const [post, setPost] = useState([]);
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import ChatItem from './components/ChatItem';
+import axios from 'axios';
+
+const ChatList = () => {
+  const [chatList, setChatList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const accessToken =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODRiNWU5ZGIyNGMwZDMwNzE3MDRhMmUiLCJ1c2VybmFtZSI6IuydtO2YhOyEnSIsInBob25lTnVtIjoiMDEwOTY2NzM4OTQiLCJpYXQiOjE3NTExOTg2MzMsImV4cCI6MTc1MTI4NTAzM30.rgmvds4TOC304Aso0TKB-ges3eKCaG8Dt2BT92uIUHQ';
 
   useEffect(() => {
-    setPost(dummyPosts);
+    const fetchChatList = async () => {
+      try {
+        const response = await axios.get(
+          'https://ilson-924833727346.asia-northeast3.run.app/chats/list',
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        const list = response.data.chatList || [];
+
+        if (!Array.isArray(list)) {
+          console.error('chatList는 배열이 아닙니다:', list);
+          setChatList([]);
+        } else {
+          setChatList(list);
+        }
+      } catch (error) {
+        console.error('채팅방 목록 조회 실패:', error.message);
+        setChatList([]);
+        Alert.alert('오류', '채팅방 목록을 불러오지 못했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChatList();
   }, []);
 
-  if (!post) {
-    return <Text>게시글이 없습니다.</Text>;
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const isAM = hours < 12;
+    const formattedHours = isAM ? hours : hours - 12;
+    const ampm = isAM ? '오전' : '오후';
+    return `${ampm} ${formattedHours === 0 ? 12 : formattedHours}:${String(minutes).padStart(2, '0')}`;
+  };
+
+  if (loading) {
+    return (
+      <View style={[styles.background, { flex: 1, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   return (
-    <View style={styles.Business}>
-      <HeaderWithBack title="내 후기를 모아볼까요?" />
-      <View style={styles.mainTitle} />
+    <ScrollView style={styles.background}>
+      <View style={[styles.titleContainer, { marginBottom: 20 }]}>
+        <Text style={styles.title}>메시지</Text>
+      </View>
+      <View style={[styles.line, { marginBottom: 5 }]} />
 
-      <FlatList
-        data={post}
-        keyExtractor={(_, index) => index.toString()}
-        renderItem={({item}) => (
-          <View style={styles.card}>
-            <View style={styles.header}>
-              <Image source={item.profileImage} style={styles.avatar} />
-              <View style={styles.headerText}>
-                <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.subTitle}>
-                  {item.name} {item.date}
-                </Text>
-              </View>
-            </View>
-
-            <FlatList
-              data={item.images}
-              horizontal
-              keyExtractor={(img, index) => index.toString()}
-              renderItem={({item: img}) => (
-                <Image source={img} style={styles.reviewImage} />
-              )}
-              style={styles.imageRow}
-              showsHorizontalScrollIndicator={false}
-            />
-
-            <Text style={styles.content}>{item.content}</Text>
-          </View>
-        )}
-      />
-    </View>
+      {chatList.length === 0 ? (
+        <View style={{ padding: 20 }}>
+          <Text style={{ textAlign: 'center', color: 'gray' }}>채팅 내역이 없습니다.</Text>
+        </View>
+      ) : (
+        chatList.map((item) => (
+          <ChatItem
+            key={item.userId}
+            name={item.username}
+            message={item.lastMessage}
+            time={formatTime(item.timeStamp)}
+            profileImage={{ uri: item.img }}
+          />
+        ))
+      )}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  mainTitle: {
-    marginBottom: 20,
+  background: {
+    flex: 1,
+    backgroundColor: 'white',
+    padding: 20,
   },
-  Business: {
-    backgroundColor: '#fff',
+
+  titleContainer: {
     width: '100%',
-    height: '100%',
-  },
-  card: {
-    padding: 15,
-
-    marginBottom: 5,
-  },
-  header: {
-    flexDirection: 'row',
-    marginBottom: 10,
-  },
-  avatar: {
-    width: 50,
-    height: 50,
-
-    marginRight: 15,
-  },
-  headerText: {
+    height: 40,
+    display: 'flex',
     justifyContent: 'center',
   },
+
   title: {
-    fontWeight: 'bold',
+    fontSize: 30,
+    fontWeight: 500,
+  },
+
+  line: {
+    width: '100%',
+    height: 1,
+    backgroundColor: 'black',
+    opacity: 0.2,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  header: {
+    height: 70,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomColor: '#ddd',
+    borderBottomWidth: 1,
+  },
+  avatar: {
+    width: 45,
+    height: 45,
+    borderRadius: 25,
+    marginRight: 10,
+    backgroundColor: 'black',
+  },
+  name: {
+    fontSize: 23,
+    fontWeight: '500',
+    marginBottom: 5,
+  },
+  messagesContainer: {
+    padding: 16,
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+  },
+  messageBubble: {
+    maxWidth: '70%',
+    padding: 10,
+    paddingLeft: 20,
+    paddingRight: 20,
+    marginBottom: 15,
+  },
+  buttonText: {
+    fontSize: 15,
+    fontWeight: 500,
+    color: 'white',
+  },
+  myMessage: {
+    backgroundColor: '#DCF8C6',
+    alignSelf: 'flex-end',
+    borderTopRightRadius: 5,
+    borderTopLeftRadius: 25,
+    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 25,
+  },
+  theirMessage: {
+    backgroundColor: '#eee',
+    alignSelf: 'flex-start',
+    borderTopRightRadius: 25,
+    borderTopLeftRadius: 5,
+    borderBottomRightRadius: 25,
+    borderBottomLeftRadius: 20,
+  },
+  messageText: {
     fontSize: 20,
   },
-  subTitle: {
-    color: '#555',
-    fontSize: 15,
-    marginTop: 2,
+  messageImage: {
+    width: 180,
+    height: 180,
+    borderRadius: 10,
+    marginTop: 5,
+    marginBottom: 5,
   },
-  imageRow: {
-    marginVertical: 8,
+  inputContainer: {
+    flexDirection: 'row',
+    padding: 10,
+    borderTopColor: '#ddd',
+    borderTopWidth: 1,
+    alignItems: 'center',
   },
-  reviewImage: {
-    width: 150,
-    height: 150,
-
-    marginRight: 6,
+  imageButton: {
+    marginLeft: 10,
+    borderRadius: 20,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 40,
+    height: 40,
+    backgroundColor: '#e0e0e0',
   },
-  content: {
-    fontSize: 15,
-    color: '#333',
+  imageButtonText: {
+    fontSize: 20,
   },
+  buttonImage: {
+    width: 22,
+    height: 22,
+  },
+  input: {
+    flex: 1,
+    height: 40,
+    backgroundColor: '#F1F1F1',
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    fontSize: 16,
+  },
+  sendButton: {
+    marginLeft: 10,
+    backgroundColor: '#7DCA79',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  tButton: {
+    marginRight: 8,
+    backgroundColor: '#7DCA79',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 50,
+    height: 40,
+    borderRadius: 20,
+  },
+  sendText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  previewContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+  },
+  previewImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 8,
+  },
+  backButton: {
+    width: 35,
+    height: 35,
+    marginRight: 10,
+  },
+  messageTime: {
+    fontSize: 10,
+    color: '#999',
+    alignSelf: 'flex-end',
+    marginTop: 4,
+  },
+  
 });
 
-export default ChatMain;
+export default ChatList;
