@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import ChatItem from './components/ChatItem';
 import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -29,7 +30,9 @@ const ChatList = () => {
           }
         );
 
+        console.log('ChatMain - 전체 응답:', response.data);
         const list = response.data.chatList || [];
+        console.log('ChatMain - chatList:', list);
 
         if (!Array.isArray(list)) {
           console.error('chatList는 배열이 아닙니다:', list);
@@ -48,6 +51,36 @@ const ChatList = () => {
 
     fetchChatList();
   }, []);
+
+  // 화면에 포커스될 때마다 채팅 목록 새로고침
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchChatList = async () => {
+        try {
+          const accessToken = await AsyncStorage.getItem("accessToken");
+          if (!accessToken) return;
+
+          const response = await axios.get(
+            'https://ilson-924833727346.asia-northeast3.run.app/chats/list',
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
+
+          const list = response.data.chatList || [];
+          if (Array.isArray(list)) {
+            setChatList(list);
+          }
+        } catch (error) {
+          console.error('채팅방 목록 새로고침 실패:', error.message);
+        }
+      };
+
+      fetchChatList();
+    }, [])
+  );
 
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
@@ -79,15 +112,19 @@ const ChatList = () => {
           <Text style={{ textAlign: 'center', color: 'gray' }}>채팅 내역이 없습니다.</Text>
         </View>
       ) : (
-        chatList.map((item) => (
-          <ChatItem
-            key={item.userId}
-            name={item.username}
-            message={item.lastMessage}
-            time={formatTime(item.timeStamp)}
-            profileImage={{ uri: item.img }}
-          />
-        ))
+        chatList.map((item) => {
+          console.log('ChatMain - item:', item);
+          return (
+            <ChatItem
+              key={item.userId}
+              name={item.username}
+              message={item.lastMessage}
+              time={formatTime(item.timeStamp)}
+              profileImage={{ uri: item.img }}
+              receiverId={item.userId}
+            />
+          );
+        })
       )}
     </ScrollView>
   );

@@ -14,7 +14,7 @@ import CheckBox from '@react-native-community/checkbox';
 import {useAuth} from '../../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging from '@react-native-firebase/messaging';
-// import jwt_decode from 'jwt-decode';
+import jwt_decode from 'jwt-decode';
 
 const getFcmToken = async () => {
   try {
@@ -68,29 +68,28 @@ const Login = () => {
 
       console.log('로그인 성공:', response.data);
       const token = response.data.token;
-      // await AsyncStorage.setItem('accessToken', token);
-
-      // const decodedToken = jwt_decode(token);
-      // const userId = decodedToken.userId;
-      // await AsyncStorage.setItem('userId', userId);
-      console.log('토큰:', token);
       const accessToken = response.data.accessToken;
-      // const userId = response.data.userId;
-      // await AsyncStorage.setItem('userId', userId);
-      // console.log('userId:', userId);
-      // const refreshToken = response.data.refreshToken;
+      let userId = response.data.userId;
 
       if (accessToken) {
         await AsyncStorage.setItem('accessToken', accessToken);
-        // await AsyncStorage.setItem('fcmToken', fcmToken);
-        // await AsyncStorage.setItem('refreshToken', refreshToken);
-        // console.log('fcm token 저장 완료: ', fcmToken);
-        // const userId = response.data.userId;
+        
+        // userId가 응답에 없으면 JWT 토큰에서 추출
+        if (!userId && accessToken) {
+          try {
+            const decodedToken = jwt_decode(accessToken);
+            userId = decodedToken.userId || decodedToken.sub || decodedToken.id;
+            console.log('JWT에서 추출한 userId:', userId);
+          } catch (error) {
+            console.error('JWT 디코드 실패:', error);
+          }
+        }
+        
+        if (userId) {
+          await AsyncStorage.setItem('userId', userId);
+          console.log('userId 저장 완료:', userId);
+        }
         console.log('Access token 저장 완료');
-        // console.log('Refresh token 저장 완료');
-        // const userId = response.data.userId;
-
-        // console.log('userId:', userId);
         console.log('accessToken:', accessToken);
         login();
         try {

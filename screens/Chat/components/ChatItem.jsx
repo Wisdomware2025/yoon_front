@@ -2,24 +2,29 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const ChatItem = ({ profileImage, name, message, time }) => {
+const ChatItem = ({ profileImage, name, message, time, receiverId }) => {
   const navigation = useNavigation();
+  
+  console.log('ChatItem - 받은 props:', { name, message, time, receiverId });
 
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => navigation.navigate('ChatPage', { name })}
+      onPress={() => {
+        console.log('ChatItem - 네비게이션 시도:', { name, receiverId });
+        navigation.navigate('ChatPage', { name, receiverId });
+      }}
     >
       <View style={styles.profile}>
         <Image style={styles.profileimg} />
       </View>
 
-      <View style={[styles.box, { marginLeft: 10 }]}>
+      <View style={[styles.box, { marginLeft: 10 }]}> 
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.message}>{message}</Text>
       </View>
 
-      <View style={[styles.box, { marginLeft: 'auto' }]}>
+      <View style={[styles.box, { marginLeft: 'auto' }]}> 
         <Text style={styles.time}>{time}</Text>
       </View>
     </TouchableOpacity>
@@ -64,6 +69,18 @@ const styles = StyleSheet.create({
   time: {
     fontSize: 15,
     color: '#777777',
+  },
+  unreadMessage: {
+    fontWeight: 'bold',
+    color: '#000000',
+  },
+  unreadBadge: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FF3B30',
+    marginTop: 4,
+    alignSelf: 'center',
   },
 });
 
