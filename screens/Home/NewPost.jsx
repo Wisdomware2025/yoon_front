@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import React, {useState} from 'react';
+import {useNavigation} from '@react-navigation/native';
 import {
   View,
   Text,
@@ -10,9 +10,9 @@ import {
   FlatList,
   Alert,
 } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Dropdown } from 'react-native-element-dropdown';
+import {Dropdown} from 'react-native-element-dropdown';
 import Modal from 'react-native-modal';
 import Postcode from '@actbase/react-daum-postcode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,15 +20,15 @@ import axios from 'axios';
 import styles from './styles';
 
 const data = [
-  { label: '시급', value: '시급' },
-  { label: '일당', value: '일당' },
-  { label: '일급', value: '일급' },
-  { label: '월급', value: '월급' },
+  {label: '시급', value: '시급'},
+  {label: '일당', value: '일당'},
+  {label: '일급', value: '일급'},
+  {label: '월급', value: '월급'},
 ];
 
 const data2 = [
-  { label: '농부', value: 'farmer' },
-  { label: '근로자', value: 'worker' },
+  {label: '농부', value: 'farmer'},
+  {label: '근로자', value: 'worker'},
 ];
 
 const NewPost = () => {
@@ -60,7 +60,7 @@ const NewPost = () => {
 
   const handleImagePicker = () => {
     launchImageLibrary(
-      { mediaType: 'photo', includeBase64: true, selectionLimit: 0 },
+      {mediaType: 'photo', includeBase64: true, selectionLimit: 0},
       response => {
         if (response.didCancel) return;
         if (response.error) {
@@ -77,9 +77,9 @@ const NewPost = () => {
     );
   };
 
-  const renderImageItem = ({ item, index }) => (
+  const renderImageItem = ({item, index}) => (
     <View style={styles.imageItemContainer}>
-      <Image source={{ uri: item }} style={styles.selectedImage} />
+      <Image source={{uri: item}} style={styles.selectedImage} />
       <TouchableOpacity
         style={styles.removeImageButton}
         onPress={() => {
@@ -136,9 +136,12 @@ const NewPost = () => {
 
       url = 'https://ilson-924833727346.asia-northeast3.run.app/boards/farmer';
     } else {
-      payload = { ...basePayload };
+      payload = {...basePayload};
       url = 'https://ilson-924833727346.asia-northeast3.run.app/boards/worker';
     }
+
+    // 로그 추가: 등록 payload
+    console.log('[NewPost] 게시글 등록 payload:', payload);
 
     try {
       const res = await axios.post(url, payload, {
@@ -147,8 +150,10 @@ const NewPost = () => {
           'Content-Type': 'application/json',
         },
       });
+      // 로그 추가: 서버 응답
+      console.log('[NewPost] 게시글 등록 응답:', res.data);
       Alert.alert('성공', '게시글이 등록되었습니다.');
-      navigation.navigate('HomeMain', { refresh: true }); // ✅ 이동 + 새로고침 트리거
+      navigation.navigate('HomeMain', {refresh: true}); // ✅ 이동 + 새로고침 트리거
     } catch (error) {
       console.error('에러 상세:', error);
       let errorMessage = '게시글 등록에 실패했습니다.';
@@ -178,7 +183,7 @@ const NewPost = () => {
         <Text style={styles.title}>게시글 작성</Text>
       </View>
 
-      <View style={[styles.Con, { marginBottom: 20 }]}>
+      <View style={[styles.Con, {marginBottom: 20}]}>
         <Dropdown
           style={styles.dropdown1}
           data={data2}
@@ -190,7 +195,7 @@ const NewPost = () => {
           placeholderStyle={styles.placeholderStyle1}
           onChange={item => setJobValue(item.value)}
         />
-        <Text style={[styles.text, { marginLeft: 10 }]}>로 작성하기</Text>
+        <Text style={[styles.text, {marginLeft: 10}]}>로 작성하기</Text>
       </View>
 
       {jobValue === 'farmer' && (
@@ -226,13 +231,14 @@ const NewPost = () => {
           </View>
 
           <Modal isVisible={modalVisible}>
-            <View style={{ flex: 1, backgroundColor: 'white', borderRadius: 10 }}>
+            <View style={{flex: 1, backgroundColor: 'white', borderRadius: 10}}>
               <Postcode
-                style={{ flex: 1 }}
-                jsOptions={{ animation: false }}
+                style={{flex: 1}}
+                jsOptions={{animation: false}}
                 onSelected={data => {
-                  const fullAddress = `${data.address} ${data.buildingName || ''
-                    }`.trim();
+                  const fullAddress = `${data.address} ${
+                    data.buildingName || ''
+                  }`.trim();
                   setAddress(fullAddress);
                   setModalVisible(false);
                 }}
@@ -240,8 +246,8 @@ const NewPost = () => {
               />
               <TouchableOpacity
                 onPress={() => setModalVisible(false)}
-                style={{ alignItems: 'center', padding: 10 }}>
-                <Text style={{ color: '#285EFF' }}>닫기</Text>
+                style={{alignItems: 'center', padding: 10}}>
+                <Text style={{color: '#285EFF'}}>닫기</Text>
               </TouchableOpacity>
             </View>
           </Modal>
@@ -283,9 +289,9 @@ const NewPost = () => {
                 value={
                   time
                     ? time.toLocaleTimeString('ko-KR', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
                     : ''
                 }
                 editable={false}

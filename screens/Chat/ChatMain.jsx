@@ -101,6 +101,14 @@ const ChatList = () => {
     ).padStart(2, '0')}`;
   };
 
+  // 이미지 경로가 절대경로인지, 상대경로인지, 혹은 null인지 체크해서 올바른 URL로 변환
+  const API_URL = 'https://ilson-924833727346.asia-northeast3.run.app';
+  const getProfileImageUri = img => {
+    if (!img) return API_URL + '/profile/default-profile.png'; // 기본 이미지 경로(서버에 맞게 수정)
+    if (img.startsWith('http')) return img;
+    return API_URL + (img.startsWith('/') ? img : '/' + img);
+  };
+
   if (loading) {
     return (
       <View
@@ -128,14 +136,13 @@ const ChatList = () => {
         </View>
       ) : (
         chatList.map(item => {
-          console.log('ChatMain - item:', item);
           return (
             <ChatItem
               key={item.userId}
               name={item.username}
               message={item.lastMessage}
               time={formatTime(item.timeStamp)}
-              profileImage={{uri: item.img}}
+              profileImage={require('../../assets/images/duser.png')}
               receiverId={item.userId}
             />
           );
@@ -187,7 +194,7 @@ const styles = StyleSheet.create({
     height: 45,
     borderRadius: 25,
     marginRight: 10,
-    backgroundColor: 'black',
+    backgroundColor: 'white',
   },
   name: {
     fontSize: 23,

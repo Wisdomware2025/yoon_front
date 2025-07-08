@@ -73,7 +73,7 @@ const Login = () => {
 
       if (accessToken) {
         await AsyncStorage.setItem('accessToken', accessToken);
-        
+
         // userId가 응답에 없으면 JWT 토큰에서 추출
         if (!userId && accessToken) {
           try {
@@ -84,7 +84,7 @@ const Login = () => {
             console.error('JWT 디코드 실패:', error);
           }
         }
-        
+
         if (userId) {
           await AsyncStorage.setItem('userId', userId);
           console.log('userId 저장 완료:', userId);
@@ -106,14 +106,6 @@ const Login = () => {
             },
           );
           console.log('fcmToken:', fcmToken);
-          // const userId = response.data.userId;
-          // await AsyncStorage.setItem('userId', userId);
-          // console.log('userId:', userId);
-          // await AsyncStorage.setItem('userId', response.data.user._id);
-          // await AsyncStorage.setItem('accessToken', response.data.token);
-          // const fcmToken = fcmTokenResponse.data.fcmToken;
-          // await AsyncStorage.setItem('fcmToken', fcmToken);
-          // console.log('fcm token 저장 완료: ', fcmToken);
         } catch (error) {
           if (error.response) {
             console.error('에러 응답:', error.response.data);

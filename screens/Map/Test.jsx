@@ -10,6 +10,9 @@ import {
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
+
+import {useRef, useMemo} from 'react';
 
 const categories = [
   {label: '병원', type: 'hospital'},
@@ -21,6 +24,8 @@ const categories = [
 const MAP_API_KEY = 'AIzaSyDPWW2AbxAUzAC0hrIXdTtNcbWBkEs3R08';
 
 const Test = () => {
+  const sheetRef = useRef(null);
+  const snapPoints = useMemo(() => ['25%', '50%', '90%'], []);
   const [selectedCategory, setSelectedCategory] = useState('hospital');
   const [places, setPlaces] = useState([]);
   const [region, setRegion] = useState({
@@ -183,37 +188,42 @@ const Test = () => {
       </View>
 
       {/* 장소 정보 리스트 */}
-      <FlatList
-        style={styles.list}
-        data={Array.isArray(places) ? places : []}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({item}) => (
-          <View style={styles.card}>
-            {item.photos && (
-              <Image
-                source={{
-                  uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=100&photoreference=${item.photos[0].photo_reference}&key=${MAP_API_KEY}`,
-                }}
-                style={styles.image}
-              />
-            )}
-            <View style={{flex: 1}}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.address}>{item.vicinity}</Text>
-              <Text style={styles.status}>
+      <BottomSheet
+        ref={sheetRef}
+        index={1}
+        snapPoints={snapPoints}
+        enablePanDownToClose={false}
+        style={{marginHorizontal: 10}}>
+        <BottomSheetFlatList
+          data={places}
+          keyExtractor={(item, index) => index.toString()}
+          contentContainerStyle={{paddingBottom: 40}}
+          renderItem={({item}) => (
+            <View style={styles.card}>
+              {item.photos && (
+                <Image
+                  source={{
+                    uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=100&photoreference=${item.photos[0].photo_reference}&key=${MAP_API_KEY}`,
+                  }}
+                  style={styles.image}
+                />
+              )}
+              <View style={{flex: 1}}>
+                <Text style={styles.name}>{item.name}</Text>
+                <Text style={styles.address}>{item.vicinity}</Text>
                 <Text
                   style={
                     item.opening_hours?.open_now
-                      ? [styles.status, styles.openText]
-                      : [styles.status, styles.closeText]
+                      ? styles.openText
+                      : styles.closeText
                   }>
                   {item.opening_hours?.open_now ? '영업 중' : '영업 종료'}
                 </Text>
-              </Text>
+              </View>
             </View>
-          </View>
-        )}
-      />
+          )}
+        />
+      </BottomSheet>
     </View>
   );
 };
@@ -258,7 +268,7 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: 350,
+    height: 500,
   },
   list: {
     flex: 1,

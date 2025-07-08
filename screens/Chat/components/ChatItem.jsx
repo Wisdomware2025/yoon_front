@@ -1,30 +1,32 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
-const ChatItem = ({ profileImage, name, message, time, receiverId }) => {
+const ChatItem = ({name, message, time, receiverId}) => {
   const navigation = useNavigation();
-  
-  console.log('ChatItem - 받은 props:', { name, message, time, receiverId });
+
+  console.log('ChatItem - 받은 props:', {name, message, time, receiverId});
 
   return (
     <TouchableOpacity
       style={styles.container}
       onPress={() => {
-        console.log('ChatItem - 네비게이션 시도:', { name, receiverId });
-        navigation.navigate('ChatPage', { name, receiverId });
-      }}
-    >
+        console.log('ChatItem - 네비게이션 시도:', {name, receiverId});
+        navigation.navigate('ChatPage', {name, receiverId});
+      }}>
       <View style={styles.profile}>
-        <Image style={styles.profileimg} />
+        <Image
+          style={styles.profileimg}
+          source={require('../../../assets/images/duser.png')}
+        />
       </View>
 
-      <View style={[styles.box, { marginLeft: 10 }]}> 
+      <View style={[styles.box, {marginLeft: 10}]}>
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.message}>{message}</Text>
       </View>
 
-      <View style={[styles.box, { marginLeft: 'auto' }]}> 
+      <View style={[styles.box, {marginLeft: 'auto'}]}>
         <Text style={styles.time}>{time}</Text>
       </View>
     </TouchableOpacity>
@@ -44,7 +46,7 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'black',
+    backgroundColor: 'white',
   },
   profileimg: {
     width: 60,

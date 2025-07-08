@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {ScrollView, View, Text} from 'react-native';
 import axios from 'axios';
 import PostCard from './PostCard';
 
-const PostList = ({ selectedTab }) => {
+const PostList = ({selectedTab}) => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
@@ -32,7 +32,9 @@ const PostList = ({ selectedTab }) => {
           <PostCard
             key={post._id}
             _id={post._id}
-            title={post.title}
+            title={
+              post.isCompleted || post.isSelected ? '구인완료' : post.title
+            }
             authorName={post.authorName}
             createdAt={post.createdAt}
             likesCnt={post.likesCnt}
@@ -44,10 +46,11 @@ const PostList = ({ selectedTab }) => {
             viewCnt={post.viewCnt}
             image={post.image || post.imgUrl}
             role={post.role}
+            isCompleted={post.isCompleted || post.isSelected}
           />
         ))
       ) : (
-        <View style={{ padding: 16 }}>
+        <View style={{padding: 16}}>
           <Text>게시글이 없습니다.</Text>
         </View>
       )}
