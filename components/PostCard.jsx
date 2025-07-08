@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
+import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/ko';
@@ -18,7 +18,7 @@ const PostCard = ({
   likesCnt,
   comments,
   image,
-  role,
+  isSelected,
 }) => {
   const navigation = useNavigation();
 
@@ -31,17 +31,27 @@ const PostCard = ({
     <TouchableOpacity
       onPress={() => {
         console.log('Navigate with boardId:', _id);
-        navigation.navigate('PostDetail', { boardId: _id });
+        navigation.navigate('PostDetail', {boardId: _id});
       }}
-      style={styles.postCard}
-    >
+      style={styles.postCard}>
       <View style={styles.postContent}>
         <View style={styles.postText}>
           <Text style={styles.postTitle}>{title}</Text>
           <Text style={styles.postAuthor}>- {authorName}</Text>
+          {isSelected && (
+            <View style={styles.container}>
+              <Text style={styles.mainText}>구인완료</Text>
+            </View>
+          )
+            ? null
+            : null}
 
           <View style={styles.postInfoRow}>
-            <Ionicons name="time-outline" size={14} style={styles.postInfoIcon} />
+            <Ionicons
+              name="time-outline"
+              size={14}
+              style={styles.postInfoIcon}
+            />
             <Text style={styles.postInfoText}>
               {dayjs(createdAt).fromNow()} · 조회 {viewCnt}
             </Text>
@@ -51,21 +61,19 @@ const PostCard = ({
         <View style={styles.postImageWrapper}>
           {firstImage ? (
             <Image
-              source={{ uri: firstImage }}
+              source={{uri: firstImage}}
               style={styles.postImage}
               resizeMode="cover"
             />
           ) : null}
 
-          <View
-            style={[
-              styles.iconRow,
-              !firstImage && { marginTop: 70 },
-            ]}
-          >
+          <View style={[styles.iconRow, !firstImage && {marginTop: 70}]}>
             <Ionicons name="heart-outline" size={16} />
             <Text style={styles.iconText}>{likesCnt}</Text>
-            <Ionicons name="chatbubble-ellipses-outline" style={styles.iconTextChat} />
+            <Ionicons
+              name="chatbubble-ellipses-outline"
+              style={styles.iconTextChat}
+            />
             <Text style={styles.iconText}>{comments}</Text>
           </View>
         </View>
@@ -135,6 +143,18 @@ const styles = StyleSheet.create({
   iconTextChat: {
     marginLeft: 10,
     fontSize: 12,
+  },
+  container: {
+    alignItems: 'center',
+    borderColor: '#5CBD66',
+    borderwidth: 1,
+    borderRadius: 50,
+    width: 150,
+    height: 50,
+  },
+  mainText: {
+    fontSize: 20,
+    color: '#63CB6D',
   },
 });
 

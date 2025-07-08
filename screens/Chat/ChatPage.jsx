@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,9 +11,13 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import {
+  useNavigation,
+  useRoute,
+  useFocusEffect,
+} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { launchImageLibrary } from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
 
 const API_URL = 'https://ilson-924833727346.asia-northeast3.run.app';
@@ -21,12 +25,15 @@ const API_URL = 'https://ilson-924833727346.asia-northeast3.run.app';
 const ChatPage = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { receiverId, name } = route.params;
+  const {receiverId, name} = route.params;
 
   const [textMessage, setTextMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [isTranslated, setIsTranslated] = useState(false);
+  const [originalMessages, setOriginalMessages] = useState([]); // 번역 전 원본 메시지
+  const [appLanguage, setAppLanguage] = useState('ko');
 
   useEffect(() => {
     const getUserIdAndMessages = async () => {
@@ -40,45 +47,64 @@ const ChatPage = () => {
         console.log('receiverId가 없습니다.');
         return;
       }
-      
+
       try {
         const accessToken = await AsyncStorage.getItem('accessToken');
-        console.log('ChatPage - API 호출:', `${API_URL}/chats/history/${receiverId}`);
-        
-        const response = await axios.get(`${API_URL}/chats/history/${receiverId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        
+        console.log(
+          'ChatPage - API 호출:',
+          `${API_URL}/chats/history/${receiverId}`,
+        );
+
+        const response = await axios.get(
+          `${API_URL}/chats/history/${receiverId}`,
+          {
+            headers: {Authorization: `Bearer ${accessToken}`},
+          },
+        );
+
         console.log('ChatPage - 채팅 기록 응답:', response.data);
         // 현재 사용자 정보를 가져와서 이름으로 비교
         try {
-          const userResponse = await axios.get(`${API_URL}/profile/${currentUserId}`, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
+          const userResponse = await axios.get(
+            `${API_URL}/profile/${currentUserId}`,
+            {
+              headers: {Authorization: `Bearer ${accessToken}`},
+            },
+          );
           const currentUserName = userResponse.data.username;
-          
+
           console.log('currentUserId:', currentUserId);
           console.log('currentUserName:', currentUserName);
           console.log('Sample message sender:', response.data[0]?.sender);
-          
-          setChatMessages(response.data.map(msg => {
-            const fromSelf = msg.sender === currentUserName;
-            console.log(`Message: ${msg.message}, sender: ${msg.sender}, fromSelf: ${fromSelf}`);
-            return {
-              ...msg,
-              fromSelf: fromSelf
-            };
-          }).reverse());
-          
+
+          setChatMessages(
+            response.data
+              .map(msg => {
+                const fromSelf = msg.sender === currentUserName;
+                console.log(
+                  `Message: ${msg.message}, sender: ${msg.sender}, fromSelf: ${fromSelf}`,
+                );
+                return {
+                  ...msg,
+                  fromSelf: fromSelf,
+                };
+              })
+              .reverse(),
+          );
+
           // 채팅방에 들어왔을 때 읽음 처리
           await markMessagesAsRead(accessToken);
         } catch (error) {
           console.error('사용자 정보 조회 실패:', error);
           // 사용자 정보 조회 실패 시 기본값으로 처리
-          setChatMessages(response.data.map(msg => ({
-            ...msg,
-            fromSelf: false
-          })).reverse());
+          setChatMessages(
+            response.data
+              .map(msg => ({
+                ...msg,
+                fromSelf: false,
+              }))
+              .reverse(),
+          );
         }
       } catch (error) {
         console.error('채팅 기록 조회 실패:', error);
@@ -86,6 +112,15 @@ const ChatPage = () => {
     };
     getUserIdAndMessages();
   }, [receiverId]);
+
+  useEffect(() => {
+    // 언어 정보 불러오기
+    const getLanguage = async () => {
+      const lang = await AsyncStorage.getItem('appLanguage');
+      setAppLanguage(lang || 'ko');
+    };
+    getLanguage();
+  }, []);
 
   // 화면에 포커스될 때마다 읽음 처리
   useFocusEffect(
@@ -99,10 +134,10 @@ const ChatPage = () => {
         }
       };
       markAsRead();
-    }, [receiverId])
+    }, [receiverId]),
   );
 
-  const formatTime = (date) => {
+  const formatTime = date => {
     const hours = date.getHours();
     const minutes = date.getMinutes();
     const ampm = hours < 12 ? '오전' : '오후';
@@ -112,19 +147,23 @@ const ChatPage = () => {
   };
 
   // 메시지 읽음 처리 함수
-  const markMessagesAsRead = async (accessToken) => {
+  const markMessagesAsRead = async accessToken => {
     try {
-      await axios.post(`${API_URL}/chats/read/${receiverId}`, {}, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      await axios.post(
+        `${API_URL}/chats/read/${receiverId}`,
+        {},
+        {
+          headers: {Authorization: `Bearer ${accessToken}`},
+        },
+      );
       console.log('메시지 읽음 처리 완료');
-      
+
       // 로컬 메시지 상태도 읽음으로 업데이트
-      setChatMessages(prev => 
+      setChatMessages(prev =>
         prev.map(msg => ({
           ...msg,
-          isRead: true
-        }))
+          isRead: true,
+        })),
       );
     } catch (error) {
       console.error('메시지 읽음 처리 실패:', error);
@@ -132,9 +171,10 @@ const ChatPage = () => {
   };
 
   const handleSelectImage = () => {
-    launchImageLibrary({ mediaType: 'photo', quality: 0.7 }, (response) => {
+    launchImageLibrary({mediaType: 'photo', quality: 0.7}, response => {
       if (response.didCancel) return;
-      if (response.errorCode) console.error('에러 발생: ', response.errorMessage);
+      if (response.errorCode)
+        console.error('에러 발생: ', response.errorMessage);
       if (response.assets && response.assets.length > 0) {
         setSelectedImage(response.assets[0]);
       }
@@ -164,7 +204,7 @@ const ChatPage = () => {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       const newMessage = {
@@ -172,12 +212,12 @@ const ChatPage = () => {
         fromSelf: true,
         isRead: true, // 내가 보낸 메시지는 읽음 상태로 표시
         id: `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        sentAt: new Date()
+        sentAt: new Date(),
       };
-      setChatMessages((prev) => [newMessage, ...prev]);
+      setChatMessages(prev => [newMessage, ...prev]);
       setTextMessage('');
       setSelectedImage(null);
-      
+
       // 메시지 전송 후 읽음 처리 (상대방이 보낸 메시지들을 읽음 처리)
       await markMessagesAsRead(accessToken);
     } catch (err) {
@@ -186,19 +226,104 @@ const ChatPage = () => {
     }
   };
 
-  const renderMessage = ({ item }) => (
+  // 번역 버튼 핸들러
+  const handleTranslate = async () => {
+    if (isTranslated) return;
+    Alert.alert(
+      '언어 확인',
+      `현재 선택된 언어: ${appLanguage}\n이 언어로 번역하시겠습니까?`,
+      [
+        {
+          text: '아니오',
+          style: 'cancel',
+        },
+        {
+          text: '예',
+          onPress: async () => {
+            const accessToken = await AsyncStorage.getItem('accessToken');
+            // 번역할 메시지와 인덱스 추출 (빈 문자열, 이미지 포함 메시지 제외)
+            const messageWithIndex = chatMessages
+              .map((msg, idx) => ({
+                text: msg.message,
+                idx,
+                hasImage: !!msg.img,
+              }))
+              .filter(
+                item => item.text && item.text.trim() !== '' && !item.hasImage,
+              );
+            const originTexts = messageWithIndex.map(item => item.text);
+            try {
+              const languageName = languageMap[appLanguage] || 'Korean';
+              const response = await axios.post(
+                `${API_URL}/translate/`,
+                {originTexts, language: languageName},
+                {headers: {Authorization: `Bearer ${accessToken}`}},
+              );
+              const translatedTexts = response.data.translatedText || [];
+              setOriginalMessages(chatMessages.map(msg => msg.message || ''));
+              setChatMessages(prev =>
+                prev.map((msg, idx) => {
+                  const found = messageWithIndex.findIndex(
+                    item => item.idx === idx,
+                  );
+                  if (found !== -1) {
+                    return {...msg, message: translatedTexts[found]};
+                  }
+                  return msg;
+                }),
+              );
+              setIsTranslated(true);
+            } catch (err) {
+              console.error('번역 실패:', err, err?.response?.data);
+              console.error('번역 요청 originTexts:', originTexts);
+              console.error(
+                '번역 요청 language:',
+                appLanguage,
+                '→',
+                languageMap[appLanguage],
+              );
+              Alert.alert('번역 실패', '메시지 번역 중 오류가 발생했습니다.');
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  // 번역 취소 핸들러
+  const handleCancelTranslate = async () => {
+    if (!isTranslated) return;
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    try {
+      await axios.post(
+        `${API_URL}/translate/cancel/`,
+        {translatedTexts: chatMessages.map(msg => msg.message || '')},
+        {headers: {Authorization: `Bearer ${accessToken}`}},
+      );
+      setChatMessages(prev =>
+        prev.map((msg, idx) => ({...msg, message: originalMessages[idx]})),
+      );
+      setIsTranslated(false);
+    } catch (err) {
+      console.error('번역 취소 실패:', err);
+      Alert.alert('번역 취소 실패', '번역 취소 중 오류가 발생했습니다.');
+    }
+  };
+
+  const renderMessage = ({item}) => (
     <View
       style={[
         styles.messageBubble,
         item.fromSelf ? styles.myMessage : styles.theirMessage,
-      ]}
-    >
+      ]}>
       {item.message && <Text style={styles.messageText}>{item.message}</Text>}
       {item.img && (
-        <Image source={{ uri: item.img }} style={styles.messageImage} />
+        <Image source={{uri: item.img}} style={styles.messageImage} />
       )}
       <View style={styles.messageFooter}>
-        <Text style={styles.messageTime}>{formatTime(new Date(item.timeStamp || item.sentAt))}</Text>
+        <Text style={styles.messageTime}>
+          {formatTime(new Date(item.timeStamp || item.sentAt))}
+        </Text>
         {!item.fromSelf && !item.isRead && (
           <View style={styles.readBadge}>
             <Text style={styles.readBadgeText}>1</Text>
@@ -211,9 +336,8 @@ const ChatPage = () => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <View style={[styles.header, { marginTop: 20 }]}>
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <View style={[styles.header, {marginTop: 20}]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image
             style={styles.backButton}
@@ -227,7 +351,9 @@ const ChatPage = () => {
       <FlatList
         data={chatMessages}
         renderItem={renderMessage}
-        keyExtractor={(item, index) => item.id || item._id || `message-${index}`}
+        keyExtractor={(item, index) =>
+          item.id || item._id || `message-${index}`
+        }
         contentContainerStyle={styles.messagesContainer}
         inverted
       />
@@ -235,16 +361,20 @@ const ChatPage = () => {
       {selectedImage && (
         <View style={styles.previewContainer}>
           <Image
-            source={{ uri: selectedImage.uri }}
+            source={{uri: selectedImage.uri}}
             style={styles.previewImage}
             resizeMode="cover"
           />
         </View>
       )}
 
-      <View style={[styles.inputContainer, { marginBottom: 15 }]}>
-        <TouchableOpacity style={styles.tButton} onPress={() => {}}>
-          <Text style={[styles.buttonText, { marginBottom: 3 }]}>번역</Text>
+      <View style={[styles.inputContainer, {marginBottom: 15}]}>
+        <TouchableOpacity
+          style={styles.tButton}
+          onPress={isTranslated ? handleCancelTranslate : handleTranslate}>
+          <Text style={[styles.buttonText, {marginBottom: 3}]}>
+            {isTranslated ? '취소' : '번역'}
+          </Text>
         </TouchableOpacity>
 
         <TextInput
@@ -258,22 +388,39 @@ const ChatPage = () => {
           numberOfLines={1}
           textAlignVertical="top"
         />
-        <TouchableOpacity style={styles.imageButton} onPress={handleSelectImage}>
-          {/* <Image
+        <TouchableOpacity
+          style={styles.imageButton}
+          onPress={handleSelectImage}>
+          <Image
             style={styles.buttonImage}
             source={require('../../assets/images/photo.png')}
-          /> */}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-          {/* <Image
-            style={[styles.buttonImage, { marginRight: 2 }]}
+          <Image
+            style={[styles.buttonImage, {marginRight: 2}]}
             source={require('../../assets/images/send.png')}
-          /> */}
+          />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );
+};
+
+const languageMap = {
+  ko: 'Korean',
+  en: 'English',
+  jh: 'Chinese',
+  th: 'Thai',
+  km: 'Khmer',
+  vi: 'Vietnamese',
+  mn: 'Mongolian',
+  uz: 'Uzbek',
+  si: 'Sinhala',
+  id: 'Indonesian',
+  my: 'Burmese',
+  ne: 'Nepali',
 };
 
 const styles = StyleSheet.create({

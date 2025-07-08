@@ -39,13 +39,11 @@ const MyPage = () => {
   };
   const [profile, setProfile] = useState(null);
 
-  const userId = '683cff894e29c4d01920a301';
-
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        // const userId = await AsyncStorage.getItem('userId');
-        // console.log('userId:', userId);
+        const userId = await AsyncStorage.getItem('userId');
+        console.log('userId:', userId);
         const accessToken = await AsyncStorage.getItem('accessToken');
         const response = await axios.get(
           `https://ilson-924833727346.asia-northeast3.run.app/profile/${userId}`,

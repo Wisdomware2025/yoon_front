@@ -13,10 +13,17 @@ import {useRoute} from '@react-navigation/native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
-import {readFile} from 'react-native-fs';
+import RNFS from 'react-native-fs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAuth} from '../../context/AuthContext';
 import messaging from '@react-native-firebase/messaging';
+import ReactNativeBlobUtil from 'react-native-blob-util';
+import storage from '@react-native-firebase/storage';
+import {useTranslation} from 'react-i18next';
+
+// import {getApp} from '@react-native-firebase/app';
+// import {getStorage, ref, uploadBytes, getDownloadURL} from 'firebase/storage';
+import {Buffer} from 'buffer';
 
 const getFcmToken = async () => {
   try {
@@ -44,7 +51,21 @@ const getFcmToken = async () => {
   }
 };
 
+// const convertImageUriToBlob = async imageUri => {
+//   const base64Data = await RNFS.readFile(imageUri, 'base64');
+
+//   const binaryString = Buffer.from(base64Data, 'base64').toString('binary');
+
+//   const len = binaryString.length;
+//   const bytes = new Uint8Array(len);
+//   for (let i = 0; i < len; i++) {
+//     bytes[i] = binaryString.charCodeAt(i);
+//   }
+
+//   return bytes;
+// };
 const JoinIn = () => {
+  const {t} = useTranslation();
   const {login} = useAuth();
   const route = useRoute();
   const {phoneNum} = route.params;
@@ -77,18 +98,59 @@ const JoinIn = () => {
       setIntroError('자기소개를 입력해주세요!');
       return;
     }
-    let base64Image = null;
-    if (imageUri) {
-      const base64Raw = await readFile(imageUri, 'base64');
-      base64Image = `data:image/jpeg;base64,${base64Raw}`;
+
+    // let imageSource;
+    // if (imageUri) {
+    //   const base64Raw = await readFile(imageUri, 'base64');
+    //   imageSource = {uri: `data:image/jpeg;base64,${base64Raw}`};
+    // } else {
+    //   imageSource = null;
+    // }
+
+    // await ReactNativeBlobUtil.fetch(
+    //   'PUT',
+    //   presigendURLs.putUrl,
+    //   {
+    //     'Content-Type': fileData.contentType,
+    //   },
+    //   ReactNativeBlobUtil.wrap(fileUri.subString(7)),
+    // );
+    let profileImgUrl = null;
+
+    try {
+      if (imageUri) {
+        const fileName = `profile_${Date.now()}.jpg`;
+        const reference = storage().ref(`profiles/${fileName}`);
+        await reference.putFile(imageUri); // imageUri는 'file://'로 시작해야 함
+        profileImgUrl = await reference.getDownloadURL();
+
+        // const app = getApp();
+
+        // const storage = getStorage(app);
+
+        // const storageRef = ref(storage, `profiles/${fileName}`);
+
+        // const fileBlob = await convertImageUriToBlob(imageUri);
+
+        // await uploadBytes(storageRef, fileBlob);
+
+        // profileImgUrl = await getDownloadURL(storageRef);
+        console.log('이미지 업로드 성공:', profileImgUrl);
+      } else {
+        profileImgUrl = null;
+      }
+    } catch (error) {
+      console.error('이미지 업로드 실패:', error);
+      Alert.alert('오류', '이미지 업로드 중 문제가 발생했습니다.');
+      return;
     }
+
     const formData = {
       phoneNum: phoneNum,
       username: username,
       intro: intro,
-      profileImg: base64Image,
+      profileImg: profileImgUrl,
     };
-
     try {
       const response = await axios.post(
         'https://ilson-924833727346.asia-northeast3.run.app/auth/signup',
@@ -101,21 +163,38 @@ const JoinIn = () => {
       );
 
       Alert.alert('성공', '회원가입이 완료되었습니다.');
+      // const {accessToken} = response.data;
+      // console.log('refreshToken 값:', response.data.refreshToken);
       const accessToken = response.data.accessToken;
-      const userId = response.data.userId;
-      await AsyncStorage.setItem('userId', userId);
 
-      // const refreshToken = response.data.refreshToken;
+      // const userId = response.data.userId;
+
+      if (!accessToken) {
+        console.error('accessToken이 응답에 포함되어 있지 않습니다.');
+        Alert.alert(
+          '오류',
+          '회원가입 중 문제가 발생했습니다. 다시 시도해주세요.',
+        );
+        return;
+      }
+
+      const refreshToken = response.data.refreshToken;
 
       if (accessToken) {
         await AsyncStorage.setItem('accessToken', accessToken);
 
-        // await AsyncStorage.setItem('refreshToken', refreshToken);
+        await AsyncStorage.setItem('refreshToken', refreshToken);
 
         console.log('Access token 저장 완료');
-        // console.log('Refresh token 저장 완료');
+        console.log('userId 값:', response.data.userId);
+        const userId = response.data.userId;
+        await AsyncStorage.setItem('userId', userId);
+        console.log('Refresh token 저장 완료');
 
-        login();
+        // login();
+        if (response.data.success) {
+          login(response.data.accessToken);
+        }
         try {
           const fcmToken = await getFcmToken();
           const fcmTokenResponse = await axios.post(
@@ -129,7 +208,7 @@ const JoinIn = () => {
           );
           // const fcmToken = fcmTokenResponse.data.fcmToken;
           // await AsyncStorage.setItem('fcmToken', fcmToken);
-          // console.log('fcm token 저장 완료: ', fcmToken);
+          console.log('fcm token 저장 완료: ', fcmToken);
         } catch (error) {
           console.error('FCM 토큰 저장 실패:', error);
         }
@@ -139,18 +218,26 @@ const JoinIn = () => {
       console.error(error.response?.data || error);
       Alert.alert('오류', '회원가입 중 문제가 발생했습니다.');
       console.log('서버 응답:', error.response?.data);
+      console.log('서버 상태 코드:', error.response?.status);
     }
   };
 
   return (
     <ScrollView style={styles.background}>
-      <Text style={styles.headerText}>당신을 알려주세요!</Text>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>{t('knowYou')}</Text>
+      </View>
+
       <View style={styles.contentBox}>
-        <View style={styles.photoBox}>
-          {imageUri && (
-            <Image source={{uri: imageUri}} style={styles.previewImage} />
-          )}
-        </View>
+        <Image
+          source={
+            imageUri
+              ? {uri: imageUri}
+              : require('../../assets/images/defaultProfile.png')
+          }
+          style={styles.photoBox}
+        />
+
         <TouchableOpacity
           style={styles.uploadButton}
           onPress={handleSelectImage}>
@@ -162,10 +249,10 @@ const JoinIn = () => {
       </View>
 
       <View style={styles.inputBox}>
-        <Text style={styles.inputTitle}>이름</Text>
+        <Text style={styles.inputTitle}>{t('name')}</Text>
         <TextInput
           style={styles.input}
-          placeholder="이름을 입력하세요."
+          placeholder={t('nameInputPlaceholder')}
           placeholderTextColor={'#919191'}
           value={username}
           onChangeText={setUserName}
@@ -173,10 +260,10 @@ const JoinIn = () => {
       </View>
 
       <View style={styles.inputBox}>
-        <Text style={styles.inputTitle}>자기 소개</Text>
+        <Text style={styles.inputTitle}>{t('myKnow')}</Text>
         <TextInput
           style={styles.textArea2}
-          placeholder="예시) 한국 경상북도 의성에서 농장을 몇 개 하고 있는 곽철용입니다."
+          placeholder={t('myKnowPlaceholder')}
           multiline
           placeholderTextColor={'#919191'}
           value={intro}
@@ -185,19 +272,32 @@ const JoinIn = () => {
       </View>
 
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>회원가입</Text>
+        <Text style={styles.submitButtonText}>{t('JoinIn')}</Text>
       </TouchableOpacity>
     </ScrollView>
   );
 };
 const styles = StyleSheet.create({
   background: {
-    padding: 50,
+    paddingLeft: 50,
+    paddingRight: 50,
+    backgroundColor: '#fff',
   },
   titleContainer: {
     width: '100%',
     height: 100,
     justifyContent: 'center',
+  },
+  header: {
+    marginTop: 10,
+    width: '100%',
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   backImage: {
     width: 30,
@@ -212,7 +312,7 @@ const styles = StyleSheet.create({
     width: 125,
     height: 125,
     borderRadius: 100,
-    backgroundColor: 'black',
+
     position: 'absolute',
   },
   photo: {

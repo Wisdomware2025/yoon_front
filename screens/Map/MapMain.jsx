@@ -4,8 +4,8 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 
 const MapMain = () => {
-  const apiKey = 'AIzaSyBZPh0Cj7PYNWtLsrJQasXFu4gxkNVaFls'; // 실제 프로젝트에서는 환경 변수로 분리 권장
-  const mapRef = useRef(null); // 지도 ref 설정
+  const apiKey = 'AIzaSyBZPh0Cj7PYNWtLsrJQasXFu4gxkNVaFls';
+  const mapRef = useRef(null);
 
   const autoCompleteHandler = (data, details = null) => {
     console.log('선택된 장소:', data);
@@ -13,7 +13,6 @@ const MapMain = () => {
       const {lat, lng} = details.geometry.location;
       console.log('위도:', lat, '경도:', lng);
 
-      // 지도 이동
       mapRef.current?.animateToRegion(
         {
           latitude: lat,
@@ -21,7 +20,7 @@ const MapMain = () => {
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         },
-        1000, // duration: 1초
+        1000,
       );
     } else {
       console.warn('장소 상세 정보가 없습니다.');
@@ -31,7 +30,7 @@ const MapMain = () => {
   return (
     <View style={styles.container}>
       <MapView
-        ref={mapRef} // ref 연결
+        ref={mapRef}
         provider={PROVIDER_GOOGLE}
         initialRegion={{
           latitude: 37.541,

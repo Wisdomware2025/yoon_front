@@ -221,8 +221,8 @@ const HomeMain = () => {
           <View style={styles.rankingSection}>
             <Text style={styles.sectionTitle}>
               {selectedTab === 'workerFind'
-                ? t('popularMonthWorker')
-                : t('popularMonthFarmer')}
+                ? t('popualrMonthWorker')
+                : t('popualrMonthFarmer')}
             </Text>
             <View style={styles.rankingList}>
               {popularProfiles.slice(0, 3).map((profile, idx) => (
@@ -311,6 +311,7 @@ const HomeMain = () => {
                       comments={post.comments}
                       image={post.image}
                       role={post.role}
+                      isSelected={post.isSelected}
                     />
                   ))
                 );

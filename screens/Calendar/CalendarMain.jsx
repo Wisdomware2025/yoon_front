@@ -17,25 +17,87 @@ import axios from 'axios';
 import 'dayjs/locale/ko';
 import SchedulBox from '../../components/SchedulBox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-dayjs.extend(isSameOrBefore);
-dayjs.locale('ko');
+import {useTranslation} from 'react-i18next';
+import 'dayjs/locale/ko';
+import 'dayjs/locale/en';
 
-LocaleConfig.locales['ko'] = {
-  monthNames: [...Array(12)].map((_, i) => `${i + 1}월`),
-  monthNamesShort: [...Array(12)].map((_, i) => `${i + 1}월`),
-  dayNames: [
-    '일요일',
-    '월요일',
-    '화요일',
-    '수요일',
-    '목요일',
-    '금요일',
-    '토요일',
-  ],
-  dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
-  today: '오늘',
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+
+dayjs.extend(isSameOrBefore);
+dayjs.extend(relativeTime);
+
+const useCalendarLocale = () => {
+  const {i18n} = useTranslation();
+
+  useEffect(() => {
+    const lang = i18n.language;
+
+    if (lang === 'ko') {
+      LocaleConfig.locales['ko'] = {
+        monthNames: [...Array(12)].map((_, i) => `${i + 1}월`),
+        monthNamesShort: [...Array(12)].map((_, i) => `${i + 1}월`),
+        dayNames: [
+          '일요일',
+          '월요일',
+          '화요일',
+          '수요일',
+          '목요일',
+          '금요일',
+          '토요일',
+        ],
+        dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+        today: '오늘',
+      };
+      LocaleConfig.defaultLocale = 'ko';
+      dayjs.locale('ko');
+    } else {
+      LocaleConfig.locales['en'] = {
+        monthNames: [
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December',
+        ],
+        monthNamesShort: [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ],
+        dayNames: [
+          'Sunday',
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+        ],
+        dayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        today: 'Today',
+      };
+      LocaleConfig.defaultLocale = 'en';
+      dayjs.locale('en');
+    }
+  }, [i18n.language]);
 };
+
 const customHeaderStyles = {};
 for (let i = 0; i < 7; i++) {
   customHeaderStyles[`dayTextAtIndex${i}`] =
@@ -50,6 +112,26 @@ dayjs.locale('ko');
 const today = dayjs().format('YYYY-MM-DD');
 
 const CalendarMain = () => {
+  useCalendarLocale();
+  const {t} = useTranslation();
+  const formattedStartDate = selectedSchedule
+    ? `${dayjs(selectedSchedule.startDate).format('M')}${t('monday')} ${dayjs(
+        selectedSchedule.startDate,
+      ).format('D')}${t('sunday')}`
+    : '';
+  const formattedEndDate = selectedSchedule
+    ? `${dayjs(selectedSchedule.endDate).format('M')}${t('monday')} ${dayjs(
+        selectedSchedule.endDate,
+      ).format('D')}${t('sunday')}`
+    : '';
+  // const formattedStartDate = `${dayjs(selectedSchedule.startDate).format(
+  //   'M',
+  // )}${t('monday')} ${dayjs(selectedSchedule.startDate).format('D')}${t(
+  //   'sunday',
+  // )}`;
+  // const formattedEndDate = `${dayjs(selectedSchedule.endDate).format('M')}${t(
+  //   'monday',
+  // )} ${dayjs(selectedSchedule.endDate).format('D')}${t('sunday')}`;
   const navigation = useNavigation();
   const [schedules, setSchedules] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -180,15 +262,15 @@ const CalendarMain = () => {
       const endpoint = `https://ilson-924833727346.asia-northeast3.run.app/schedules/${selectedSchedule._id}`;
 
       const updatedData = {
-        startDate: selectedSchedule.startDate,
-        endDate: selectedSchedule.endDate,
-        startTime: selectedSchedule.startTime,
-        endTime: selectedSchedule.endTime,
-        location: selectedSchedule.location,
-        work: selectedSchedule.work,
-        workers: selectedSchedule.workers,
-        chargeType: selectedSchedule.chargeType,
-        charge: selectedSchedule.charge,
+        startDate: selectedSchedule?.startDate,
+        endDate: selectedSchedule?.endDate,
+        startTime: selectedSchedule?.startTime,
+        endTime: selectedSchedule?.endTime,
+        location: selectedSchedule?.location,
+        work: selectedSchedule?.work,
+        workers: selectedSchedule?.workers,
+        chargeType: selectedSchedule?.chargeType,
+        charge: selectedSchedule?.charge,
       };
 
       const response = await axios.put(endpoint, updatedData, {
@@ -243,14 +325,6 @@ const CalendarMain = () => {
     while (current.isSameOrBefore(end, 'day')) {
       const formattedDate = current.format('YYYY-MM-DD');
 
-      // if (!acc[formattedDate]) {
-      //   acc[formattedDate] = {dots: []};
-      // }
-
-      // acc[formattedDate].dots.push({
-      //   key: item._id,
-      //   color: item.color || '#FFDCDC',
-      // });
       acc[formattedDate] = {
         dots: [
           ...(acc[formattedDate]?.dots || []),
@@ -258,7 +332,10 @@ const CalendarMain = () => {
         ],
         customStyles: {
           container: {
-            backgroundColor: item.color || '#FFDCDC',
+            marginTop: 8,
+          },
+          text: {
+            fontSize: 20,
           },
         },
       };
@@ -325,6 +402,7 @@ const CalendarMain = () => {
                         }>
                         {date.day}
                       </Text>
+                      <View style={styles.SchedulContainer} />
                     </View>
                   ) : (
                     <Text
@@ -382,8 +460,7 @@ const CalendarMain = () => {
                   </View>
                   <Text style={styles.modalMainContentText}>
                     {/* 4월 8일 ~ 4월 11일 */}
-                    {dayjs(selectedSchedule.startDate).format('M월 D일')} ~{' '}
-                    {dayjs(selectedSchedule.endDate).format('M월 D일')}
+                    {formattedStartDate} ~ {formattedEndDate}
                   </Text>
                 </View>
                 <View style={styles.modalMainContent}>
@@ -394,6 +471,7 @@ const CalendarMain = () => {
                     />
                   </View>
                   <Text style={styles.modalMainContentText}>
+                    {/* 오전 8시 ~ 오전 11시 */}
                     {selectedSchedule.startTime} ~ {selectedSchedule.endTime}
                   </Text>
                 </View>
@@ -429,13 +507,14 @@ const CalendarMain = () => {
                   </View>
                   <Text style={styles.modalMainContentText}>
                     {selectedSchedule.chargeType} {/* 시급 10,000원*/}
-                    {selectedSchedule.charge}원
+                    {selectedSchedule.charge}
+                    {t('won')}
                   </Text>
                 </View>
               </View>
             ) : (
               <View style={styles.modalMain}>
-                <Text style={styles.modalMainText}>일정이 없습니다.</Text>
+                <Text style={styles.modalMainText}>{t('noSchedule')}</Text>
               </View>
             )}
 
@@ -444,12 +523,14 @@ const CalendarMain = () => {
                 <Pressable
                   onPress={onPressEditSchedule}
                   style={styles.correctionButton}>
-                  <Text style={styles.correctionButtonText}>수정하기</Text>
+                  <Text style={styles.correctionButtonText}>
+                    {t('correction')}
+                  </Text>
                 </Pressable>
                 <Pressable
                   onPress={onPressDeleteSchedule}
                   style={styles.deleteButton}>
-                  <Text style={styles.deleteButtonText}>삭제하기</Text>
+                  <Text style={styles.deleteButtonText}>{t('delete')}</Text>
                 </Pressable>
               </View>
             ) : (
@@ -457,12 +538,12 @@ const CalendarMain = () => {
                 <Pressable
                   onPress={onPressModalClose}
                   style={styles.closeButton}>
-                  <Text style={styles.closeButtonText}>닫기</Text>
+                  <Text style={styles.closeButtonText}>{t('close')}</Text>
                 </Pressable>
                 <Pressable
                   onPress={onPressNewSchedule}
                   style={styles.plusButton}>
-                  <Text style={styles.plusButtonText}>추가하기</Text>
+                  <Text style={styles.plusButtonText}>{t('add')}</Text>
                 </Pressable>
               </View>
             )}
@@ -506,7 +587,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  SchedulContainer: {
+    backgroundColor: '#FFDCDC',
+    padding: 5,
+    widht: '100%',
 
+    borderRadius: 5,
+  },
   otherMonthText: {
     color: '#8E8E8E',
   },
