@@ -20,5 +20,17 @@
   "personFind": "사람 찾기",
   "popualrMonthWorker": "이번달 인기 알바생",
   "popualrMonthFarmer": "이번달 인기 농장주",
-  "searchResultNotFound": "검색 결과가 없습니다."
+  "searchResultNotFound": "검색 결과가 없습니다.",
+  "delete": "삭제",
+  "add": "추가",
+  "close": "닫기",
+  "noSchedule": "일정이 없습니다.",
+  "correction": "수정",
+  "won": "원",
+  "knowYou": "당신을 알려주세요!",
+  "name": "이름",
+  "myKnow": "자기소개",
+  "nameInputPlaceholder": "이름을 입력해주세요.",
+  "myKnowPlaceholder": "자기소개를 입력해주세요.",
+  "JoinIn": "가입하기"
 }

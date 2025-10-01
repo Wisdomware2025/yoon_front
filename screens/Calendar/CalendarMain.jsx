@@ -460,7 +460,9 @@ const CalendarMain = () => {
                   </View>
                   <Text style={styles.modalMainContentText}>
                     {/* 4월 8일 ~ 4월 11일 */}
-                    {formattedStartDate} ~ {formattedEndDate}
+                    {dayjs(selectedSchedule.startDate).format(
+                      'MM월 DD일',
+                    )} ~ {dayjs(selectedSchedule.endDate).format('MM월 DD일')}
                   </Text>
                 </View>
                 <View style={styles.modalMainContent}>

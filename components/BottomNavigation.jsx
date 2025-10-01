@@ -56,6 +56,7 @@ const BottomNavigation = () => {
           tabBarActiveTintColor: 'rgb(109, 163, 77)',
           tabBarInactiveTintColor: '#595959',
           headerShown: false,
+          initialRouteName: '홈',
         })}>
         <Tab.Screen name="달력" component={CalendarScreen} />
         <Tab.Screen name="지도" component={MapScreen} />

@@ -146,11 +146,12 @@ const JoinIn = () => {
     }
 
     const formData = {
-      phoneNum: phoneNum,
-      username: username,
-      intro: intro,
+      phoneNum,
+      username,
+      intro,
       profileImg: profileImgUrl,
     };
+
     try {
       const response = await axios.post(
         'https://ilson-924833727346.asia-northeast3.run.app/auth/signup',
@@ -162,14 +163,14 @@ const JoinIn = () => {
         },
       );
 
+      console.log('서버 응답:', response.data);
+
       Alert.alert('성공', '회원가입이 완료되었습니다.');
-      // const {accessToken} = response.data;
-      // console.log('refreshToken 값:', response.data.refreshToken);
-      const accessToken = response.data.accessToken;
 
-      // const userId = response.data.userId;
+      // 서버 응답 구조 맞게 꺼내기
+      const {user} = response.data;
 
-      if (!accessToken) {
+      if (!user || !user.accessToken) {
         console.error('accessToken이 응답에 포함되어 있지 않습니다.');
         Alert.alert(
           '오류',
@@ -178,40 +179,36 @@ const JoinIn = () => {
         return;
       }
 
-      const refreshToken = response.data.refreshToken;
+      const {accessToken, refreshToken, userId} = user;
 
-      if (accessToken) {
-        await AsyncStorage.setItem('accessToken', accessToken);
+      // 저장
+      await AsyncStorage.setItem('accessToken', accessToken);
+      await AsyncStorage.setItem('refreshToken', refreshToken);
+      await AsyncStorage.setItem('userId', userId);
 
-        await AsyncStorage.setItem('refreshToken', refreshToken);
+      console.log('Access token 저장 완료');
+      console.log('Refresh token 저장 완료');
+      console.log('userId 저장 완료:', userId);
 
-        console.log('Access token 저장 완료');
-        console.log('userId 값:', response.data.userId);
-        const userId = response.data.userId;
-        await AsyncStorage.setItem('userId', userId);
-        console.log('Refresh token 저장 완료');
+      // 로그인 처리
+      login(accessToken);
 
-        // login();
-        if (response.data.success) {
-          login(response.data.accessToken);
-        }
-        try {
-          const fcmToken = await getFcmToken();
-          const fcmTokenResponse = await axios.post(
-            'https://ilson-924833727346.asia-northeast3.run.app/auth/get-fcmToken',
-            {fcmToken: fcmToken},
-            {
-              headers: {
-                'Content-Type': 'application/json',
-              },
+      // FCM 토큰 저장
+      try {
+        const fcmToken = await getFcmToken();
+        await axios.post(
+          'https://ilson-924833727346.asia-northeast3.run.app/auth/get-fcmToken',
+          {fcmToken},
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`, // 인증 필요시
             },
-          );
-          // const fcmToken = fcmTokenResponse.data.fcmToken;
-          // await AsyncStorage.setItem('fcmToken', fcmToken);
-          console.log('fcm token 저장 완료: ', fcmToken);
-        } catch (error) {
-          console.error('FCM 토큰 저장 실패:', error);
-        }
+          },
+        );
+        console.log('fcm token 저장 완료: ', fcmToken);
+      } catch (error) {
+        console.error('FCM 토큰 저장 실패:', error);
       }
     } catch (error) {
       console.log('보내는 데이터:', formData);
@@ -221,7 +218,6 @@ const JoinIn = () => {
       console.log('서버 상태 코드:', error.response?.status);
     }
   };
-
   return (
     <ScrollView style={styles.background}>
       <View style={styles.header}>

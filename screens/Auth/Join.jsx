@@ -15,11 +15,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // import {useTranslation} from 'react-i18next';
 
 const Join = () => {
-  // const {t} = useTranslation();
   const [phoneNum, setPhoneNum] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [codeError, setCodeError] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
   const navigation = useNavigation();
 
   const handleLanguagePress = () => {
@@ -27,6 +27,10 @@ const Join = () => {
   };
 
   const handleJoinInPress = () => {
+    if (!isVerified) {
+      alert('먼저 인증을 완료해주세요!');
+      return;
+    }
     if (phoneNum.trim() === '') {
       setError('전화번호를 입력해주세요!');
       return;
@@ -35,7 +39,7 @@ const Join = () => {
       setCodeError('인증번호를 입력해주세요!');
       return;
     }
-    if (phoneNum.trim() !== '' && code.trim() !== '') {
+    if (phoneNum.trim() !== '' && code.trim() !== '' && isVerified) {
       navigation.navigate('JoinIn', {phoneNum: phoneNum});
     }
   };
@@ -83,10 +87,11 @@ const Join = () => {
       );
       console.log('인증 성공:', response.data);
       alert('인증에 성공했습니다.');
-      navigation.navigate('HomeMain');
+      setIsVerified(true);
     } catch (error) {
       console.error('인증 실패:', error);
       alert('인증 중 오류가 발생했습니다.');
+      setIsVerified(false);
     }
   };
 

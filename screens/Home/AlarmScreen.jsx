@@ -12,19 +12,19 @@ const notifications = {
   어제: [
     {
       id: 1,
-      message: '김나혜님이 친구 요청을 보냈습니다.',
+      message: '곽민석님이 친구 요청을 보냈습니다.',
       time: '11시간 전',
     },
     {
       id: 2,
-      message: '이현석님이 내 게시물에 좋아요를 눌렀습니다.',
+      message: '홍길동님이 내 게시물에 좋아요를 눌렀습니다.',
       time: '23시간 전',
     },
   ],
   '최근 7일': [
     {
       id: 3,
-      message: '최윤정님이 나를 추천했습니다.',
+      message: '김이박님이 나를 추천했습니다.',
       time: '3일 전',
     },
     {
@@ -41,12 +41,12 @@ const notifications = {
   '최근 30일': [
     {
       id: 6,
-      message: '김나혜님이 친구 요청을 보냈습니다.',
+      message: '김이박님이 친구 요청을 보냈습니다.',
       time: '23시간 전',
     },
     {
       id: 7,
-      message: '김나혜님이 친구 요청을 보냈습니다.',
+      message: '김이박님이 친구 요청을 보냈습니다.',
       time: '23시간 전',
     },
   ],
@@ -68,7 +68,7 @@ const AlarmScreen = () => {
             {notifications[section].map(item => (
               <View key={item.id} style={styles.notification}>
                 <Image
-                  source={require('../../assets/images/ranking3.png')}
+                  source={require('../../assets/images/defaultProfile.png')}
                   style={styles.avatar}
                 />
                 <View style={styles.textContainer}>

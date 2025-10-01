@@ -45,10 +45,12 @@ const Login = () => {
   const {login} = useAuth();
   const [error, setError] = useState('');
   const [codeError, setCodeError] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
 
   const [phoneNum, setPhoneNum] = useState('');
   const [code, setCode] = useState('');
-  // const [isSelected, setSelection] = useState(false);
+  const [username, setUsername] = useState('');
+
   const navigation = useNavigation();
 
   const handleLanguagePress = () => {
@@ -58,68 +60,87 @@ const Login = () => {
     navigation.navigate('Join');
   };
   const handleLogin = async () => {
+    if (!isVerified) {
+      alert('먼저 인증을 완료해주세요!');
+      return;
+    }
+    if (phoneNum.trim() === '') {
+      setError('전화번호를 입력해주세요!');
+      return;
+    }
+    if (code.trim() === '') {
+      setCodeError('인증번호를 입력해주세요!');
+      return;
+    }
     try {
       const response = await axios.post(
         'https://ilson-924833727346.asia-northeast3.run.app/auth/Login',
         {
           phoneNum: phoneNum,
+          username: username,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
       );
 
-      console.log('로그인 성공:', response.data);
-      const token = response.data.token;
-      const accessToken = response.data.accessToken;
-      let userId = response.data.userId;
+      console.log('로그인 응답:', response.data);
 
-      if (accessToken) {
-        await AsyncStorage.setItem('accessToken', accessToken);
+      const {accessToken, refreshToken, userId} = response.data;
 
-        // userId가 응답에 없으면 JWT 토큰에서 추출
-        if (!userId && accessToken) {
-          try {
-            const decodedToken = jwt_decode(accessToken);
-            userId = decodedToken.userId || decodedToken.sub || decodedToken.id;
-            console.log('JWT에서 추출한 userId:', userId);
-          } catch (error) {
-            console.error('JWT 디코드 실패:', error);
-          }
-        }
+      if (!accessToken) {
+        console.error('로그인 실패: accessToken이 없습니다.');
+        alert.alert('로그인 실패', '다시 시도해주세요.');
+        return;
+      }
 
-        if (userId) {
-          await AsyncStorage.setItem('userId', userId);
-          console.log('userId 저장 완료:', userId);
-        }
-        console.log('Access token 저장 완료');
-        console.log('accessToken:', accessToken);
-        login();
+      let finalUserId = userId;
+      if (!finalUserId && accessToken) {
         try {
-          const fcmToken = await getFcmToken();
-          const fcmTokenResponse = await axios.post(
-            'https://ilson-924833727346.asia-northeast3.run.app/auth/get-fcmToken',
-            {fcmToken: fcmToken},
-
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
-          );
-          console.log('fcmToken:', fcmToken);
+          const decodedToken = jwt_decode(accessToken);
+          finalUserId =
+            decodedToken.userId || decodedToken.sub || decodedToken.id;
+          console.log('JWT에서 추출한 userId:', finalUserId);
         } catch (error) {
-          if (error.response) {
-            console.error('에러 응답:', error.response.data);
-          }
-
-          console.error('FCM 토큰 저장 실패:', error);
+          console.error('JWT 디코드 실패:', error);
         }
-      } else {
-        console.error('로그인 실패: refreshToken이 없습니다.');
-        alert('로그인에 실패했습니다. 다시 시도해주세요.');
+      }
+
+      // 저장
+      await AsyncStorage.setItem('accessToken', accessToken);
+      if (refreshToken) {
+        await AsyncStorage.setItem('refreshToken', refreshToken);
+        console.log('Refresh token 저장 완료');
+      }
+      if (finalUserId) {
+        await AsyncStorage.setItem('userId', finalUserId);
+        console.log('UserId 저장 완료:', finalUserId);
+      }
+
+      console.log('Access token 저장 완료:', accessToken);
+
+      login(accessToken);
+
+      try {
+        const fcmToken = await getFcmToken();
+        await axios.post(
+          'https://ilson-924833727346.asia-northeast3.run.app/auth/get-fcmToken',
+          {fcmToken},
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+            },
+          },
+        );
+        console.log('fcm token 저장 완료:', fcmToken);
+      } catch (error) {
+        console.error('FCM 토큰 저장 실패:', error.response?.data || error);
       }
     } catch (error) {
-      console.error('로그인 실패:', error);
-      alert('로그인 중 오류가 발생했습니다.');
+      console.error('로그인 실패:', error.response?.data || error);
     }
   };
 
@@ -140,6 +161,7 @@ const Login = () => {
 
       console.log('인증번호 전송 성공:', response.data);
       alert('인증번호가 전송되었습니다.');
+      setIsVerified(true);
     } catch (error) {
       if (error.response) {
         console.error(
@@ -190,47 +212,56 @@ const Login = () => {
       </View>
       <View style={styles.logoContainer}>
         <Text style={styles.logoText}>Ilson</Text>
-      </View>
-      <View style={styles.container}>
-        <Text style={styles.contentText}>전화번호</Text>
-        <View style={styles.content}>
-          <TextInput
-            style={styles.phoneNumber}
-            placeholder="010-1234-5678"
-            value={phoneNum}
-            onChangeText={text => {
-              setPhoneNum(text);
-              if (error) setError('');
-            }}
-            keyboardType="phone-pad"
-          />
-          {error !== '' && <Text style={styles.errorText}>{error}</Text>}
-          <Pressable
-            onPress={handleSendCode}
-            style={styles.certificationButton}>
-            <Text style={styles.certification}>전송</Text>
-          </Pressable>
-        </View>
-        <Text style={styles.contentTexts}>인증번호 입력</Text>
-        <View style={styles.content}>
-          <TextInput
-            style={styles.phoneNumber}
-            placeholder="인증번호 입력"
-            value={code}
-            onChangeText={text => {
-              setCode(text);
-              if (codeError) setCodeError('');
-            }}
-            keyboardType="numeric"
-          />
-          {codeError !== '' && (
-            <Text style={styles.errorText}>{codeError}</Text>
-          )}
-          <Pressable
-            onPress={handleVerifyCode}
-            style={styles.certificationButton}>
-            <Text style={styles.certification}>확인</Text>
-          </Pressable>
+        <View style={styles.container}>
+          <Text style={styles.contentText}>아이디(Username)</Text>
+          <View style={styles.content}>
+            <TextInput
+              style={styles.phoneNumber}
+              placeholder="아이디를 입력하세요"
+              value={username}
+              onChangeText={text => setUsername(text)}
+            />
+          </View>
+          <Text style={styles.contentText}>전화번호</Text>
+          <View style={styles.content}>
+            <TextInput
+              style={styles.phoneNumber}
+              placeholder="010-1234-5678"
+              value={phoneNum}
+              onChangeText={text => {
+                setPhoneNum(text);
+                if (error) setError('');
+              }}
+              keyboardType="phone-pad"
+            />
+            {error !== '' && <Text style={styles.errorText}>{error}</Text>}
+            <Pressable
+              onPress={handleSendCode}
+              style={styles.certificationButton}>
+              <Text style={styles.certification}>전송</Text>
+            </Pressable>
+          </View>
+          <Text style={styles.contentTexts}>인증번호 입력</Text>
+          <View style={styles.content}>
+            <TextInput
+              style={styles.phoneNumber}
+              placeholder="인증번호 입력"
+              value={code}
+              onChangeText={text => {
+                setCode(text);
+                if (codeError) setCodeError('');
+              }}
+              keyboardType="numeric"
+            />
+            {codeError !== '' && (
+              <Text style={styles.errorText}>{codeError}</Text>
+            )}
+            <Pressable
+              onPress={handleVerifyCode}
+              style={styles.certificationButton}>
+              <Text style={styles.certification}>확인</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
       <View style={styles.footer}>
